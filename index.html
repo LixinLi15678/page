@@ -2602,38 +2602,44 @@
         });
 
         // 访问计数器
-        const namespace = 'leoli-portfolio', key = 'visits';
-        function updateVisitorCount() {
-          fetch(`https://api.countapi.xyz/hit/${namespace}/${key}`)
-            .then(res => res.json())
-            .then(data => {
-              const count = data.value;
-              const loader = document.getElementById('loaderVisitorCount');
-              if (loader) loader.textContent = count.toLocaleString();
+        const namespace = 'leoli-portfolio';
+        const key = 'visits';
+        let requested = false; // guard
 
-              const footer = document.getElementById('visitorCount');
-              if (footer) {
-                let c = 0, inc = Math.ceil(count / 50);
-                const timer = setInterval(() => {
-                  c += inc;
-                  if (c >= count) { c = count; clearInterval(timer); }
-                  footer.textContent = c.toLocaleString();
-                }, 30);
-              }
-            })
+        function updateVisitorCount() {
+          if (requested) return;      // 防止重复请求
+          requested = true;
+
+          fetch(`https://api.countapi.xyz/hit/${namespace}/${key}`)
+            .then(r => r.json())
+            .then(({ value }) => animateCount(value))
             .catch(err => {
-              console.error('CountAPI error, localStorage fallback:', err);
+              console.error('CountAPI error, fallback to local:', err);
               updateVisitorCountLocal();
             });
         }
 
+        function animateCount(count) {
+          const loader = document.getElementById('loaderVisitorCount');
+          const footer = document.getElementById('visitorCount');
+          if (loader) loader.textContent = count.toLocaleString();
+
+          if (footer) {
+            let cur = 0, step = Math.ceil(count / 50);
+            const timer = setInterval(() => {
+              cur += step;
+              if (cur >= count) { cur = count; clearInterval(timer); }
+              footer.textContent = cur.toLocaleString();
+            }, 30);
+          }
+        }
+
         function updateVisitorCountLocal() {
-          let count = parseInt(localStorage.getItem('visitorCount') || '0') + 1;
-          localStorage.setItem('visitorCount', count);
-          ['loaderVisitorCount', 'visitorCount'].forEach(id => {
-            const el = document.getElementById(id);
-            if (el) el.textContent = count.toLocaleString();
-          });
+          let c = +localStorage.getItem('visitorCount') || 0;
+          c += 1;
+          localStorage.setItem('visitorCount', c);
+          document.getElementById('loaderVisitorCount').textContent = c.toLocaleString();
+          document.getElementById('visitorCount').textContent = c.toLocaleString();
         }
 
         document.addEventListener('DOMContentLoaded', updateVisitorCount);
