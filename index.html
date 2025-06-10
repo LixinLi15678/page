@@ -2603,31 +2603,53 @@
 
         // 访问计数器
         function updateVisitorCount() {
+            // 使用您的网站域名作为命名空间，确保唯一性
+            const namespace = 'leoli-portfolio';
+            const key = 'visits';
+
+            // 调用 CountAPI 增加访问量
+            fetch(`https://api.countapi.xyz/hit/${namespace}/${key}`)
+                .then(response => response.json())
+                .then(data => {
+                    const count = data.value;
+
+                    // 更新加载器中的计数
+                    const loaderCounter = document.getElementById('loaderVisitorCount');
+                    if (loaderCounter) {
+                        loaderCounter.textContent = count.toLocaleString();
+                    }
+
+                    // 更新页脚的计数（带动画效果）
+                    const footerCounter = document.getElementById('visitorCount');
+                    if (footerCounter) {
+                        let currentCount = 0;
+                        const increment = Math.ceil(count / 50);
+
+                        const counterAnimation = setInterval(() => {
+                            currentCount += increment;
+                            if (currentCount >= count) {
+                                currentCount = count;
+                                clearInterval(counterAnimation);
+                            }
+                            footerCounter.textContent = currentCount.toLocaleString();
+                        }, 30);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error updating visitor count:', error);
+                    // 失败时使用本地存储作为备用方案
+                    updateVisitorCountLocal();
+                });
+        }
+
+        // 备用方案：本地存储（当API不可用时）
+        function updateVisitorCountLocal() {
             let count = localStorage.getItem('visitorCount') || 0;
             count = parseInt(count) + 1;
             localStorage.setItem('visitorCount', count);
 
-            // 更新加载器中的计数
-            const loaderCounter = document.getElementById('loaderVisitorCount');
-            if (loaderCounter) {
-                loaderCounter.textContent = count.toLocaleString();
-            }
-
-            // 更新页脚的计数
-            const footerCounter = document.getElementById('visitorCount');
-            if (footerCounter) {
-                let currentCount = 0;
-                const increment = Math.ceil(count / 50);
-
-                const counterAnimation = setInterval(() => {
-                    currentCount += increment;
-                    if (currentCount >= count) {
-                        currentCount = count;
-                        clearInterval(counterAnimation);
-                    }
-                    footerCounter.textContent = currentCount.toLocaleString();
-                }, 30);
-            }
+            document.getElementById('loaderVisitorCount').textContent = count.toLocaleString();
+            document.getElementById('visitorCount').textContent = count.toLocaleString();
         }
 
         // 表单处理
