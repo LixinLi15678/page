@@ -1,0 +1,1383 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+<title>2048</title>
+<style>
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    user-select: none;
+    -webkit-user-select: none;
+    min-height: 100vh;
+    position: relative;
+    overflow-x: hidden;
+    transition: background 0.3s ease;
+}
+
+/* 主题定义 */
+/* 未来科技主题 */
+body.theme-future {
+    background: #1a1a2e;
+    color: #eee;
+}
+
+body.theme-future::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(45deg, #1a1a2e, #16213e, #0f3460);
+    background-size: 400% 400%;
+    animation: gradientShift 15s ease infinite;
+    z-index: -1;
+}
+
+/* 原版主题 */
+body.theme-classic {
+    background: #faf8ef;
+    color: #776e65;
+}
+
+/* 粉色美少女主题 */
+body.theme-kawaii {
+    background: #ffe0f0;
+    color: #d63384;
+}
+
+body.theme-kawaii::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(45deg, #ffe0f0, #ffb6d9, #ffc2e2, #ff90c2);
+    background-size: 400% 400%;
+    animation: gradientShift 20s ease infinite;
+    z-index: -1;
+}
+
+@keyframes gradientShift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+/* 登录界面 */
+.login-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0,0,0,0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+    backdrop-filter: blur(10px);
+}
+
+.login-box {
+    background: white;
+    padding: 40px;
+    border-radius: 20px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    max-width: 400px;
+    width: 90%;
+    text-align: center;
+}
+
+.login-box h2 {
+    margin-top: 0;
+    color: #333;
+}
+
+.login-input {
+    width: 100%;
+    padding: 12px;
+    margin: 10px 0;
+    border: 2px solid #ddd;
+    border-radius: 10px;
+    font-size: 16px;
+    transition: border-color 0.3s;
+}
+
+.login-input:focus {
+    outline: none;
+    border-color: #667eea;
+}
+
+.login-btn {
+    width: 100%;
+    padding: 12px;
+    margin-top: 20px;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.login-btn:hover {
+    transform: translateY(-2px);
+}
+
+.guest-link {
+    margin-top: 20px;
+    color: #666;
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+/* 用户信息显示 */
+.user-info {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: rgba(255,255,255,0.2);
+    padding: 8px 15px;
+    border-radius: 20px;
+    backdrop-filter: blur(10px);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.theme-classic .user-info {
+    background: rgba(0,0,0,0.1);
+}
+
+.logout-btn {
+    background: rgba(255,255,255,0.3);
+    border: none;
+    padding: 5px 10px;
+    border-radius: 15px;
+    cursor: pointer;
+    font-size: 12px;
+    transition: background 0.2s;
+}
+
+.logout-btn:hover {
+    background: rgba(255,255,255,0.5);
+}
+
+/* 主题切换器 */
+.theme-switcher {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    display: flex;
+    gap: 5px;
+    background: rgba(255,255,255,0.2);
+    padding: 5px;
+    border-radius: 20px;
+    backdrop-filter: blur(10px);
+}
+
+.theme-classic .theme-switcher {
+    background: rgba(0,0,0,0.1);
+}
+
+.theme-btn {
+    width: 30px;
+    height: 30px;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: transform 0.2s;
+    position: relative;
+}
+
+.theme-btn:hover {
+    transform: scale(1.2);
+}
+
+.theme-btn.active::after {
+    content: '✓';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    font-weight: bold;
+}
+
+.theme-btn.future {
+    background: linear-gradient(135deg, #1a1a2e, #0f3460);
+}
+
+.theme-btn.classic {
+    background: #faf8ef;
+    border: 2px solid #bbada0;
+}
+
+.theme-btn.kawaii {
+    background: linear-gradient(135deg, #ff6b9d, #feca57);
+}
+
+/* 游戏界面适配不同主题 */
+.header {
+    width: 90%;
+    max-width: 500px;
+    margin-top: 60px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.title {
+    font-size: 56px;
+    font-weight: bold;
+}
+
+.theme-future .title {
+    background: linear-gradient(45deg, #f39c12, #e74c3c);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.theme-classic .title {
+    color: #776e65;
+}
+
+.theme-kawaii .title {
+    background: linear-gradient(45deg, #ff6b9d, #ee5a6f);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    font-family: "Comic Sans MS", cursive;
+}
+
+/* 分数容器主题适配 */
+.score-container, .best-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border-radius: 8px;
+    padding: 10px 15px;
+    min-width: 80px;
+    position: relative;
+    transition: all 0.3s;
+}
+
+.theme-future .score-container,
+.theme-future .best-container {
+    background: rgba(255,255,255,0.1);
+    backdrop-filter: blur(10px);
+    color: #ffffff;
+}
+
+.theme-classic .score-container,
+.theme-classic .best-container {
+    background: #bbada0;
+    color: white;
+}
+
+.theme-kawaii .score-container,
+.theme-kawaii .best-container {
+    background: linear-gradient(135deg, #ff9ff3, #feca57);
+    color: white;
+    box-shadow: 0 4px 15px rgba(255,159,243,0.3);
+}
+
+/* 按钮主题适配 */
+.btn {
+    border: none;
+    padding: 10px 18px;
+    border-radius: 25px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.theme-future .btn {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.theme-classic .btn {
+    background: #8f7a66;
+    color: #f9f6f2;
+}
+
+.theme-kawaii .btn {
+    background: linear-gradient(135deg, #ff6b9d, #feca57);
+    color: white;
+    box-shadow: 0 4px 15px rgba(255,107,157,0.3);
+}
+
+/* 游戏容器主题适配 */
+.grid-background {
+    position: absolute;
+    top:0; left:0;
+    width: 100%; height: 100%;
+    border-radius: 15px;
+    padding: 10px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: repeat(4, 1fr);
+    gap: 10px;
+}
+
+.theme-future .grid-background {
+    background: rgba(255,255,255,0.1);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+}
+
+.theme-classic .grid-background {
+    background: #bbada0;
+}
+
+.theme-kawaii .grid-background {
+    background: linear-gradient(135deg, #ffeaa7, #fdcb6e);
+    box-shadow: 0 10px 30px rgba(253,203,110,0.3);
+}
+
+.grid-background .bg-cell {
+    border-radius: 8px;
+}
+
+.theme-future .bg-cell {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+}
+
+.theme-classic .bg-cell {
+    background: #cdc1b4;
+}
+
+.theme-kawaii .bg-cell {
+    background: rgba(255,255,255,0.4);
+    border: 2px solid rgba(255,255,255,0.6);
+}
+
+/* 方块主题适配 */
+.tile {
+    position: absolute;
+    width: calc((100% - 30px) / 4);
+    height: calc((100% - 30px) / 4);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 48px;
+    font-weight: bold;
+    transition: all 0.15s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    will-change: transform, top, left;
+}
+
+/* 未来主题方块颜色 */
+.theme-future .tile-2 { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: #fff; }
+.theme-future .tile-4 { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: #fff; }
+.theme-future .tile-8 { background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); color: #fff; }
+.theme-future .tile-16 { background: linear-gradient(135deg, #30cfd0 0%, #330867 100%); color: #fff; }
+.theme-future .tile-32 { background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%); color: #333; }
+.theme-future .tile-64 { background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%); color: #fff; }
+.theme-future .tile-128 { background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%); color: #fff; font-size: 42px; }
+.theme-future .tile-256 { background: linear-gradient(135deg, #ff6a88 0%, #ff99ac 100%); color: #fff; font-size: 42px; }
+.theme-future .tile-512 { background: linear-gradient(135deg, #fbab7e 0%, #f7ce68 100%); color: #fff; font-size: 42px; }
+.theme-future .tile-1024 { background: linear-gradient(135deg, #85ffbd 0%, #fffb7d 100%); color: #333; font-size: 36px; }
+.theme-future .tile-2048 { background: linear-gradient(135deg, #ffc93c 0%, #ff6f3c 100%); color: #fff; font-size: 36px; }
+
+/* 原版主题方块颜色 */
+.theme-classic .tile-2 { background: #eee4da; color: #776e65; }
+.theme-classic .tile-4 { background: #ede0c8; color: #776e65; }
+.theme-classic .tile-8 { background: #f2b179; color: #f9f6f2; }
+.theme-classic .tile-16 { background: #f59563; color: #f9f6f2; }
+.theme-classic .tile-32 { background: #f67c5f; color: #f9f6f2; }
+.theme-classic .tile-64 { background: #f65e3b; color: #f9f6f2; }
+.theme-classic .tile-128 { background: #edcf72; color: #f9f6f2; font-size: 45px; }
+.theme-classic .tile-256 { background: #edcc61; color: #f9f6f2; font-size: 45px; }
+.theme-classic .tile-512 { background: #edc850; color: #f9f6f2; font-size: 45px; }
+.theme-classic .tile-1024 { background: #edc53f; color: #f9f6f2; font-size: 35px; }
+.theme-classic .tile-2048 { background: #edc22e; color: #f9f6f2; font-size: 35px; }
+
+/* 粉色美少女主题方块颜色 */
+.theme-kawaii .tile-2 { background: linear-gradient(135deg, #ffeaa7, #fab1a0); color: #fff; }
+.theme-kawaii .tile-4 { background: linear-gradient(135deg, #ff7675, #fd79a8); color: #fff; }
+.theme-kawaii .tile-8 { background: linear-gradient(135deg, #fd79a8, #e84393); color: #fff; }
+.theme-kawaii .tile-16 { background: linear-gradient(135deg, #e17055, #fdcb6e); color: #fff; }
+.theme-kawaii .tile-32 { background: linear-gradient(135deg, #6c5ce7, #a29bfe); color: #fff; }
+.theme-kawaii .tile-64 { background: linear-gradient(135deg, #ff6b9d, #c44569); color: #fff; }
+.theme-kawaii .tile-128 { background: linear-gradient(135deg, #ee5a6f, #f53b57); color: #fff; font-size: 42px; }
+.theme-kawaii .tile-256 { background: linear-gradient(135deg, #f8b500, #feca57); color: #fff; font-size: 42px; }
+.theme-kawaii .tile-512 { background: linear-gradient(135deg, #ff3838, #ff4757); color: #fff; font-size: 42px; }
+.theme-kawaii .tile-1024 { background: linear-gradient(135deg, #ff6348, #ff7979); color: #fff; font-size: 36px; }
+.theme-kawaii .tile-2048 { 
+    background: linear-gradient(135deg, #ff1744, #f50057); 
+    color: #fff; 
+    font-size: 36px;
+    box-shadow: 0 0 30px rgba(245,0,87,0.6);
+    animation: sparkle 2s ease infinite;
+}
+
+@keyframes sparkle {
+    0%, 100% { box-shadow: 0 0 30px rgba(245,0,87,0.6); }
+    50% { box-shadow: 0 0 50px rgba(245,0,87,0.8), 0 0 70px rgba(245,0,87,0.4); }
+}
+
+.theme-kawaii .tile {
+    box-shadow: 0 4px 10px rgba(255,107,157,0.2);
+    font-family: "Comic Sans MS", cursive;
+}
+
+/* 方块动画 */
+.tile-new {
+    animation: tile-new-anim 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes tile-new-anim {
+    0% {transform: scale(0) rotate(180deg); opacity:0;}
+    100% {transform: scale(1) rotate(0deg); opacity:1;}
+}
+
+.tile-merged {
+    animation: tile-merge-anim 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes tile-merge-anim {
+    0% {transform: scale(1); }
+    50% {transform: scale(1.3) rotate(5deg);}
+    100% {transform: scale(1) rotate(0deg);}
+}
+
+/* 其他样式 */
+.score-diff {
+    position: absolute;
+    top: -10px;
+    right: -10px;
+    font-size: 20px;
+    font-weight: bold;
+    padding: 4px 8px;
+    border-radius: 15px;
+    animation: score-diff-move 1.5s ease forwards;
+    pointer-events: none;
+    white-space: nowrap;
+    color: #fff;
+}
+
+.theme-future .score-diff {
+    background: linear-gradient(45deg, #2ecc71, #27ae60);
+    box-shadow: 0 2px 10px rgba(46,204,113,0.5);
+}
+
+.theme-classic .score-diff {
+    background: #8f7a66;
+}
+
+.theme-kawaii .score-diff {
+    background: linear-gradient(45deg, #ff6b9d, #ee5a6f);
+    box-shadow: 0 2px 10px rgba(255,107,157,0.5);
+}
+
+@keyframes score-diff-move {
+    0% {opacity: 0; transform: translateY(0) scale(0.5);}
+    50% {opacity: 1; transform: translateY(-20px) scale(1.2);}
+    100% {opacity: 0; transform: translateY(-40px) scale(0.8);}
+}
+
+.game-container {
+    position: relative;
+    width: 90vw;
+    height: 90vw;
+    max-width: 500px;
+    max-height: 500px;
+    margin-top: 20px;
+    touch-action: none;
+}
+
+.tiles-container {
+    position: absolute;
+    top:10px; left:10px;
+    width:calc(100% - 20px);
+    height:calc(100% - 20px);
+}
+
+.controls-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.stats-container {
+    width: 90%;
+    max-width: 500px;
+    margin-top: 15px;
+    padding: 10px;
+    border-radius: 10px;
+    display: flex;
+    justify-content: space-around;
+}
+
+.theme-future .stats-container {
+    background: rgba(255,255,255,0.05);
+    backdrop-filter: blur(5px);
+}
+
+.theme-classic .stats-container {
+    background: rgba(0,0,0,0.05);
+}
+
+.theme-kawaii .stats-container {
+    background: rgba(255,255,255,0.3);
+    backdrop-filter: blur(5px);
+}
+
+.stat-item {
+    text-align: center;
+}
+
+.stat-value {
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.theme-future .stat-value { color: #f39c12; }
+.theme-classic .stat-value { color: #776e65; }
+.theme-kawaii .stat-value { color: #e84393; }
+
+.stat-label {
+    font-size: 12px;
+    opacity: 0.7;
+}
+
+/* 弹窗样式 */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0,0,0,0.8);
+    z-index: 1000;
+    backdrop-filter: blur(5px);
+}
+
+.modal-content {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: white;
+    padding: 30px;
+    border-radius: 20px;
+    text-align: center;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+}
+
+.modal-content h3 {
+    margin-top: 0;
+    color: #333;
+}
+
+.modal-content button {
+    margin: 10px;
+}
+
+.footer {
+    margin: 20px 0;
+    font-size: 12px;
+    opacity: 0.6;
+    text-align: center;
+}
+
+/* 响应式设计 */
+@media (max-width: 600px) {
+    .title { font-size: 42px; }
+    .tile { font-size: 36px; }
+    .tile-128, .tile-256, .tile-512 { font-size: 32px; }
+    .tile-1024, .tile-2048 { font-size: 24px !important; }
+    .header { justify-content: center; }
+    .theme-switcher { position: static; margin-bottom: 10px; }
+    .user-info { position: static; margin-bottom: 10px; }
+}
+</style>
+</head>
+<body class="theme-future">
+
+<!-- 登录界面 -->
+<div class="login-container" id="loginContainer" style="display: none;">
+    <div class="login-box">
+        <h2>欢迎来到2048游戏</h2>
+        <p>请输入用户名以保存您的游戏进度</p>
+        <input type="text" class="login-input" id="usernameInput" placeholder="输入用户名" maxlength="20">
+        <button class="login-btn" onclick="login()">登录</button>
+        <div class="guest-link" onclick="playAsGuest()">以游客身份游玩（不保存进度）</div>
+    </div>
+</div>
+
+<!-- 主题切换器 -->
+<div class="theme-switcher">
+    <button class="theme-btn future active" onclick="switchTheme('future')" title="未来科技"></button>
+    <button class="theme-btn classic" onclick="switchTheme('classic')" title="经典原版"></button>
+    <button class="theme-btn kawaii" onclick="switchTheme('kawaii')" title="粉色少女"></button>
+</div>
+
+<!-- 用户信息 -->
+<div class="user-info" id="userInfo" style="display: none;">
+    <span id="usernameDisplay"></span>
+    <button class="logout-btn" onclick="logout()">登出</button>
+</div>
+
+<!-- 游戏主体 -->
+<div class="header">
+    <div class="left-panel">
+        <div class="title">2048</div>
+        <div class="scores-wrapper" style="display: flex; gap: 10px;">
+            <div class="score-container">
+                <div class="score-label">分数</div>
+                <div class="score-value" id="score">0</div>
+            </div>
+            <div class="best-container">
+                <div class="best-label">最高分</div>
+                <div class="best-value" id="best">0</div>
+            </div>
+        </div>
+    </div>
+    <div class="controls-container">
+        <button class="btn" id="undo">撤销</button>
+        <button class="btn" id="restart">重新开始</button>
+        <button class="btn" id="toggleMode">正常</button>
+    </div>
+</div>
+
+<div class="stats-container">
+    <div class="stat-item">
+        <div class="stat-value" id="moves">0</div>
+        <div class="stat-label">步数</div>
+    </div>
+    <div class="stat-item">
+        <div class="stat-value" id="time">00:00</div>
+        <div class="stat-label">时间</div>
+    </div>
+    <div class="stat-item">
+        <div class="stat-value" id="highest-tile">2</div>
+        <div class="stat-label">最大方块</div>
+    </div>
+</div>
+
+<div class="game-container" id="game-container">
+    <div class="grid-background">
+        <div class="bg-cell"></div><div class="bg-cell"></div><div class="bg-cell"></div><div class="bg-cell"></div>
+        <div class="bg-cell"></div><div class="bg-cell"></div><div class="bg-cell"></div><div class="bg-cell"></div>
+        <div class="bg-cell"></div><div class="bg-cell"></div><div class="bg-cell"></div><div class="bg-cell"></div>
+        <div class="bg-cell"></div><div class="bg-cell"></div><div class="bg-cell"></div><div class="bg-cell"></div>
+    </div>
+    <div class="tiles-container" id="tiles"></div>
+</div>
+
+<!-- 保存进度提示弹窗 -->
+<div class="modal" id="saveModal">
+    <div class="modal-content">
+        <h3>需要登录才能保存进度</h3>
+        <p>您正在以游客身份游玩，进度将不会被保存</p>
+        <button class="btn" onclick="closeSaveModal()">知道了</button>
+        <button class="btn" onclick="goToLogin()">去登录</button>
+    </div>
+</div>
+
+<div class="footer">
+    2048游戏 - 多用户多主题版<br>
+    支持触摸、键盘和鼠标操作
+</div>
+
+<script>
+// 全局变量
+const GRID_SIZE = 4;
+const MAX_HISTORY = 10;
+let currentUser = null;
+let currentTheme = 'future';
+let mode = 0;
+let grid = [];
+let score = 0;
+let best = 0;
+let history = [];
+let tileIdCounter = 0;
+let moves = 0;
+let startTime = Date.now();
+let timerInterval;
+let hasWon = false;
+let isGuest = false;
+
+// 触摸控制变量
+let touchStartX = 0;
+let touchStartY = 0;
+let touchEndX = 0;
+let touchEndY = 0;
+
+// 初始化
+window.onload = function() {
+    checkLoginStatus();
+};
+
+// 检查登录状态
+function checkLoginStatus() {
+    const savedUser = localStorage.getItem('2048-current-user');
+    if (savedUser) {
+        currentUser = savedUser;
+        document.getElementById('loginContainer').style.display = 'none';
+        document.getElementById('usernameDisplay').textContent = currentUser;
+        document.getElementById('userInfo').style.display = 'flex';
+        loadUserData();
+        init();
+    } else {
+        document.getElementById('loginContainer').style.display = 'flex';
+    }
+}
+
+// 登录功能
+function login() {
+    const username = document.getElementById('usernameInput').value.trim();
+    if (username.length < 1) {
+        alert('请输入用户名');
+        return;
+    }
+    
+    currentUser = username;
+    isGuest = false;
+    localStorage.setItem('2048-current-user', username);
+    document.getElementById('loginContainer').style.display = 'none';
+    document.getElementById('usernameDisplay').textContent = username;
+    document.getElementById('userInfo').style.display = 'flex';
+    
+    loadUserData();
+    init();
+}
+
+// 游客模式
+function playAsGuest() {
+    isGuest = true;
+    currentUser = '游客';
+    document.getElementById('loginContainer').style.display = 'none';
+    document.getElementById('usernameDisplay').textContent = '游客模式';
+    document.getElementById('userInfo').style.display = 'flex';
+    init();
+    
+    // 显示提示
+    setTimeout(() => {
+        document.getElementById('saveModal').style.display = 'block';
+    }, 1000);
+}
+
+// 登出功能
+function logout() {
+    if (!isGuest && currentUser) {
+        saveUserData();
+    }
+    localStorage.removeItem('2048-current-user');
+    location.reload();
+}
+
+// 加载用户数据
+function loadUserData() {
+    const userData = localStorage.getItem(`2048-user-${currentUser}`);
+    if (userData) {
+        const data = JSON.parse(userData);
+        grid = data.grid || [];
+        score = data.score || 0;
+        best = data.best || 0;
+        moves = data.moves || 0;
+        mode = data.mode || 0;
+        tileIdCounter = data.tileIdCounter || 0;
+        currentTheme = data.theme || 'future';
+        hasWon = data.hasWon || false;
+        
+        // 应用主题
+        document.body.className = `theme-${currentTheme}`;
+        document.querySelectorAll('.theme-btn').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        document.querySelector(`.theme-btn.${currentTheme}`).classList.add('active');
+    }
+}
+
+// 保存用户数据
+function saveUserData() {
+    if (isGuest) {
+        return; // 游客模式不保存
+    }
+    
+    const userData = {
+        grid: grid,
+        score: score,
+        best: best,
+        moves: moves,
+        mode: mode,
+        tileIdCounter: tileIdCounter,
+        theme: currentTheme,
+        hasWon: hasWon,
+        lastPlayed: new Date().toISOString()
+    };
+    
+    localStorage.setItem(`2048-user-${currentUser}`, JSON.stringify(userData));
+}
+
+// 主题切换
+function switchTheme(theme) {
+    currentTheme = theme;
+    document.body.className = `theme-${theme}`;
+    
+    // 更新按钮状态
+    document.querySelectorAll('.theme-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    document.querySelector(`.theme-btn.${theme}`).classList.add('active');
+    
+    // 保存主题设置
+    if (!isGuest) {
+        saveUserData();
+    }
+}
+
+// 关闭保存提示弹窗
+function closeSaveModal() {
+    document.getElementById('saveModal').style.display = 'none';
+}
+
+// 去登录
+function goToLogin() {
+    location.reload();
+}
+
+// 游戏逻辑部分
+function newTile(value) {
+    return { value: value, id: tileIdCounter++ };
+}
+
+function copyState() {
+    return {
+        grid: JSON.parse(JSON.stringify(grid)),
+        score: score,
+        tileIdCounter: tileIdCounter,
+        mode: mode,
+        moves: moves
+    };
+}
+
+function pushHistory() {
+    const state = copyState();
+    history.push(state);
+    if (history.length > MAX_HISTORY) {
+        history.shift();
+    }
+}
+
+function undo() {
+    if (history.length > 0) {
+        const lastState = history.pop();
+        const oldScore = score;
+        grid = lastState.grid;
+        score = lastState.score;
+        tileIdCounter = lastState.tileIdCounter;
+        mode = lastState.mode;
+        moves = lastState.moves;
+        updateUI(true);
+        showScoreChange(score - oldScore);
+        updateToggleButtonText();
+        updateStats();
+        saveUserData();
+    }
+}
+
+function init() {
+    if (!grid || grid.length === 0 || grid.every(row => row.every(cell => cell === 0))) {
+        // 新游戏
+        grid = [];
+        score = 0;
+        moves = 0;
+        hasWon = false;
+        for (let i = 0; i < GRID_SIZE; i++) {
+            grid[i] = [];
+            for (let j = 0; j < GRID_SIZE; j++) {
+                grid[i][j] = 0;
+            }
+        }
+        spawnTile();
+        spawnTile();
+    }
+    
+    document.getElementById('best').textContent = best;
+    startTimer();
+    updateUI(true);
+    updateToggleButtonText();
+    updateStats();
+}
+
+function startTimer() {
+    startTime = Date.now();
+    if (timerInterval) clearInterval(timerInterval);
+    timerInterval = setInterval(updateTimer, 1000);
+}
+
+function updateTimer() {
+    const elapsed = Math.floor((Date.now() - startTime) / 1000);
+    const minutes = Math.floor(elapsed / 60);
+    const seconds = elapsed % 60;
+    document.getElementById('time').textContent = 
+        `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+}
+
+function updateStats() {
+    document.getElementById('moves').textContent = moves;
+    
+    let maxTile = 0;
+    for (let i = 0; i < GRID_SIZE; i++) {
+        for (let j = 0; j < GRID_SIZE; j++) {
+            if (grid[i][j] !== 0 && grid[i][j].value > maxTile) {
+                maxTile = grid[i][j].value;
+            }
+        }
+    }
+    document.getElementById('highest-tile').textContent = maxTile;
+    
+    if (maxTile === 2048 && !hasWon) {
+        hasWon = true;
+        setTimeout(() => {
+            alert('🎉 恭喜你达到2048！你可以继续挑战更高分数！');
+        }, 300);
+    }
+}
+
+function showScoreChange(diff) {
+    if (diff === 0) return;
+    const scoreContainer = document.querySelector('.score-container');
+    const diffEl = document.createElement('div');
+    diffEl.className = 'score-diff';
+    diffEl.textContent = (diff > 0 ? '+' : '') + diff;
+    scoreContainer.appendChild(diffEl);
+    setTimeout(() => {
+        if (diffEl && diffEl.parentNode) {
+            diffEl.parentNode.removeChild(diffEl);
+        }
+    }, 1500);
+}
+
+function tilePosition(i, j) {
+    const container = document.getElementById('game-container');
+    const cellSize = (container.offsetWidth - 10*(GRID_SIZE+1)) / GRID_SIZE;
+    const top = i*(cellSize+10);
+    const left = j*(cellSize+10);
+    return {top, left};
+}
+
+let lastTilesMap = new Map();
+
+function updateUI(smooth=false) {
+    const tilesContainer = document.getElementById('tiles');
+    const oldTilesMap = lastTilesMap;
+    lastTilesMap = new Map();
+
+    for (let i = 0; i < GRID_SIZE; i++) {
+        for (let j = 0; j < GRID_SIZE; j++) {
+            const cell = grid[i][j];
+            if (cell !== 0) {
+                lastTilesMap.set(cell.id, {value: cell.value, x:i, y:j});
+            }
+        }
+    }
+
+    const existingEls = Array.from(tilesContainer.querySelectorAll('.tile'));
+    const existingMap = new Map();
+    for (let el of existingEls) {
+        existingMap.set(+el.getAttribute('data-id'), el);
+    }
+
+    for (let [id, info] of lastTilesMap.entries()) {
+        let el = existingMap.get(id);
+        const pos = tilePosition(info.x, info.y);
+        if (!el) {
+            el = document.createElement('div');
+            let tileClass = 'tile-' + info.value;
+            if (info.value > 2048) {
+                tileClass = 'tile-2048';
+            }
+            el.classList.add('tile', tileClass, 'tile-new');
+            el.setAttribute('data-id', id);
+            el.textContent = info.value;
+            el.style.top = pos.top + 'px';
+            el.style.left = pos.left + 'px';
+            tilesContainer.appendChild(el);
+        } else {
+            existingMap.delete(id);
+            const oldInfo = oldTilesMap.get(id);
+            if (oldInfo && oldInfo.value !== info.value) {
+                let tileClass = 'tile-' + info.value;
+                if (info.value > 2048) {
+                    tileClass = 'tile-2048';
+                }
+                el.className = 'tile ' + tileClass + ' tile-merged';
+                el.textContent = info.value;
+            }
+            if (smooth) {
+                el.style.transition = 'none';
+                void el.offsetWidth;
+                el.style.top = pos.top + 'px';
+                el.style.left = pos.left + 'px';
+                setTimeout(()=> {
+                    el.style.transition = '';
+                },0);
+            } else {
+                el.style.top = pos.top + 'px';
+                el.style.left = pos.left + 'px';
+            }
+        }
+    }
+
+    for (let [id, el] of existingMap.entries()) {
+        tilesContainer.removeChild(el);
+    }
+
+    document.getElementById('score').textContent = score;
+    if (score > best) {
+        best = score;
+        document.getElementById('best').textContent = best;
+    }
+}
+
+function spawnTile() {
+    const emptyCells = [];
+    for (let i = 0; i < GRID_SIZE; i++) {
+        for (let j = 0; j < GRID_SIZE; j++) {
+            if (grid[i][j] === 0) {
+                emptyCells.push({x:i,y:j});
+            }
+        }
+    }
+    if (emptyCells.length === 0) return false;
+    const {x,y} = emptyCells[Math.floor(Math.random()*emptyCells.length)];
+
+    let val;
+    if (mode === 0) { 
+        val = Math.random()<0.9 ? 2 : 4; 
+    } else if (mode === 1) {
+        val = 2;
+    } else {
+        val = 4;
+    }
+
+    grid[x][y] = newTile(val);
+    return true;
+}
+
+function moveLine(line) {
+    let arr = line.filter(x => x!==0);
+    let moved = false;
+    let scoreInc = 0;
+    for (let j = 0; j < arr.length - 1; j++) {
+        if (arr[j].value === arr[j+1].value) {
+            arr[j] = newTile(arr[j].value*2);
+            scoreInc += arr[j].value;
+            arr.splice(j+1,1);
+        }
+    }
+    while (arr.length < GRID_SIZE) {
+        arr.push(0);
+    }
+    if (arr.toString() !== line.toString()) {
+        moved = true;
+    }
+    return {newLine: arr, moved, scoreInc};
+}
+
+function moveTilesLeft() {
+    let moved = false;
+    let scoreIncrement = 0;
+    for (let i = 0; i < GRID_SIZE; i++) {
+        const line = grid[i];
+        const {newLine, moved:lineMoved, scoreInc} = moveLine(line);
+        grid[i] = newLine;
+        if (lineMoved) {
+            moved = true;
+            scoreIncrement += scoreInc;
+        }
+    }
+    return {moved, scoreIncrement};
+}
+
+function transposeGrid() {
+    let newGrid = [];
+    for (let i=0; i<GRID_SIZE; i++){
+        newGrid[i]=[];
+        for (let j=0; j<GRID_SIZE; j++){
+            newGrid[i][j]=grid[j][i];
+        }
+    }
+    grid=newGrid;
+}
+
+function reverseRows() {
+    for (let i=0; i<GRID_SIZE; i++){
+        grid[i].reverse();
+    }
+}
+
+function moveTilesRight() {
+    reverseRows();
+    let result = moveTilesLeft();
+    reverseRows();
+    return result;
+}
+
+function moveTilesUp() {
+    transposeGrid();
+    let result = moveTilesLeft();
+    transposeGrid();
+    return result;
+}
+
+function moveTilesDown() {
+    transposeGrid();
+    reverseRows();
+    let result = moveTilesLeft();
+    reverseRows();
+    transposeGrid();
+    return result;
+}
+
+function isGameOver() {
+    for (let i = 0; i < GRID_SIZE; i++) {
+        for (let j = 0; j < GRID_SIZE; j++) {
+            const cell = grid[i][j];
+            if (cell === 0) return false;
+        }
+    }
+    for (let i = 0; i < GRID_SIZE; i++) {
+        for (let j = 0; j < GRID_SIZE; j++) {
+            const cell = grid[i][j];
+            if (j < GRID_SIZE - 1 && cell && grid[i][j+1] && cell.value === grid[i][j+1].value) return false;
+            if (i < GRID_SIZE - 1 && cell && grid[i+1][j] && cell.value === grid[i+1][j].value) return false;
+        }
+    }
+    return true;
+}
+
+function handleMove(direction) {
+    let result = {moved:false, scoreIncrement:0};
+    let oldScore = score;
+    
+    pushHistory();
+    
+    switch (direction) {
+        case 'left':
+            result = moveTilesLeft();
+            break;
+        case 'right':
+            result = moveTilesRight();
+            break;
+        case 'up':
+            result = moveTilesUp();
+            break;
+        case 'down':
+            result = moveTilesDown();
+            break;
+    }
+    
+    if (result.moved) {
+        moves++;
+        score += result.scoreIncrement;
+        spawnTile();
+        updateUI();
+        showScoreChange(score - oldScore);
+        updateStats();
+        saveUserData();
+        
+        requestAnimationFrame(() => {
+            if (isGameOver()) {
+                setTimeout(() => {
+                    alert(`游戏结束！\n最终得分：${score}\n总步数：${moves}`);
+                }, 300);
+            }
+        });
+    } else {
+        history.pop();
+    }
+}
+
+// 键盘控制
+document.addEventListener('keydown', (e) => {
+    if (document.getElementById('loginContainer').style.display !== 'none') return;
+    
+    let direction = null;
+    switch (e.key) {
+        case 'ArrowLeft':
+            direction = 'left';
+            break;
+        case 'ArrowRight':
+            direction = 'right';
+            break;
+        case 'ArrowUp':
+            direction = 'up';
+            break;
+        case 'ArrowDown':
+            direction = 'down';
+            break;
+    }
+    if (direction) {
+        e.preventDefault();
+        handleMove(direction);
+    }
+});
+
+// 触摸控制
+const gameContainer = document.getElementById('game-container');
+
+gameContainer.addEventListener('touchstart', (e) => {
+    touchStartX = e.touches[0].clientX;
+    touchStartY = e.touches[0].clientY;
+}, { passive: true });
+
+gameContainer.addEventListener('touchend', (e) => {
+    touchEndX = e.changedTouches[0].clientX;
+    touchEndY = e.changedTouches[0].clientY;
+    handleSwipe();
+}, { passive: true });
+
+// 鼠标拖动控制
+let mouseDown = false;
+gameContainer.addEventListener('mousedown', (e) => {
+    mouseDown = true;
+    touchStartX = e.clientX;
+    touchStartY = e.clientY;
+});
+
+document.addEventListener('mouseup', (e) => {
+    if (mouseDown) {
+        mouseDown = false;
+        touchEndX = e.clientX;
+        touchEndY = e.clientY;
+        handleSwipe();
+    }
+});
+
+function handleSwipe() {
+    const diffX = touchEndX - touchStartX;
+    const diffY = touchEndY - touchStartY;
+    const minSwipeDistance = 30;
+    
+    if (Math.abs(diffX) > Math.abs(diffY)) {
+        if (Math.abs(diffX) > minSwipeDistance) {
+            if (diffX > 0) {
+                handleMove('right');
+            } else {
+                handleMove('left');
+            }
+        }
+    } else {
+        if (Math.abs(diffY) > minSwipeDistance) {
+            if (diffY > 0) {
+                handleMove('down');
+            } else {
+                handleMove('up');
+            }
+        }
+    }
+}
+
+// 点击删除方块
+gameContainer.addEventListener('click', (e) => {
+    if (e.target.classList.contains('tile')) {
+        if (e.shiftKey) {
+            const id = +e.target.getAttribute('data-id');
+            let tileX = -1, tileY = -1, val=0;
+            outer: for (let i=0;i<GRID_SIZE;i++){
+                for(let j=0;j<GRID_SIZE;j++){
+                    if(grid[i][j]!==0 && grid[i][j].id===id){
+                        tileX=i;tileY=j;val=grid[i][j].value;
+                        break outer;
+                    }
+                }
+            }
+            if (tileX>=0 && tileY>=0) {
+                let oldScore = score;
+                pushHistory();
+                grid[tileX][tileY]=0;
+                score -= val;
+                updateUI();
+                showScoreChange(score - oldScore);
+                updateStats();
+                saveUserData();
+            }
+        }
+    }
+});
+
+// 重新开始
+document.getElementById('restart').addEventListener('click', () => {
+    if (confirm('确定要重新开始吗？当前进度将会保存。')) {
+        saveUserData();
+        history = [];
+        moves = 0;
+        score = 0;
+        hasWon = false;
+        for (let i = 0; i < GRID_SIZE; i++) {
+            for (let j = 0; j < GRID_SIZE; j++) {
+                grid[i][j] = 0;
+            }
+        }
+        spawnTile();
+        spawnTile();
+        startTimer();
+        updateUI(true);
+        updateStats();
+        saveUserData();
+    }
+});
+
+// 撤销
+document.getElementById('undo').addEventListener('click', () => {
+    undo();
+});
+
+// 模式切换
+function updateToggleButtonText(){
+    const btn = document.getElementById('toggleMode');
+    let text;
+    if (mode === 0) {
+        text = "正常";
+    } else if (mode === 1) {
+        text = "只出2";
+    } else {
+        text = "只出4";
+    }
+    btn.textContent = text;
+}
+
+document.getElementById('toggleMode').addEventListener('click', () => {
+    mode = (mode + 1) % 3;
+    updateToggleButtonText();
+    saveUserData();
+});
+
+// 页面关闭前保存
+window.addEventListener('beforeunload', () => {
+    if (!isGuest && currentUser) {
+        saveUserData();
+    }
+});
+</script>
+</body>
+</html>
