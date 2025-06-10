@@ -2602,55 +2602,41 @@
         });
 
         // 访问计数器
+        const namespace = 'leoli-portfolio', key = 'visits';
         function updateVisitorCount() {
-            // 使用您的网站域名作为命名空间，确保唯一性
-            const namespace = 'leoli-portfolio';
-            const key = 'visits';
+          fetch(`https://api.countapi.xyz/hit/${namespace}/${key}`)
+            .then(res => res.json())
+            .then(data => {
+              const count = data.value;
+              const loader = document.getElementById('loaderVisitorCount');
+              if (loader) loader.textContent = count.toLocaleString();
 
-            // 调用 CountAPI 增加访问量
-            fetch(`https://api.countapi.xyz/hit/${namespace}/${key}`)
-                .then(response => response.json())
-                .then(data => {
-                    const count = data.value;
-
-                    // 更新加载器中的计数
-                    const loaderCounter = document.getElementById('loaderVisitorCount');
-                    if (loaderCounter) {
-                        loaderCounter.textContent = count.toLocaleString();
-                    }
-
-                    // 更新页脚的计数（带动画效果）
-                    const footerCounter = document.getElementById('visitorCount');
-                    if (footerCounter) {
-                        let currentCount = 0;
-                        const increment = Math.ceil(count / 50);
-
-                        const counterAnimation = setInterval(() => {
-                            currentCount += increment;
-                            if (currentCount >= count) {
-                                currentCount = count;
-                                clearInterval(counterAnimation);
-                            }
-                            footerCounter.textContent = currentCount.toLocaleString();
-                        }, 30);
-                    }
-                })
-                .catch(error => {
-                    console.error('Error updating visitor count:', error);
-                    // 失败时使用本地存储作为备用方案
-                    updateVisitorCountLocal();
-                });
+              const footer = document.getElementById('visitorCount');
+              if (footer) {
+                let c = 0, inc = Math.ceil(count / 50);
+                const timer = setInterval(() => {
+                  c += inc;
+                  if (c >= count) { c = count; clearInterval(timer); }
+                  footer.textContent = c.toLocaleString();
+                }, 30);
+              }
+            })
+            .catch(err => {
+              console.error('CountAPI error, localStorage fallback:', err);
+              updateVisitorCountLocal();
+            });
         }
 
-        // 备用方案：本地存储（当API不可用时）
         function updateVisitorCountLocal() {
-            let count = localStorage.getItem('visitorCount') || 0;
-            count = parseInt(count) + 1;
-            localStorage.setItem('visitorCount', count);
-
-            document.getElementById('loaderVisitorCount').textContent = count.toLocaleString();
-            document.getElementById('visitorCount').textContent = count.toLocaleString();
+          let count = parseInt(localStorage.getItem('visitorCount') || '0') + 1;
+          localStorage.setItem('visitorCount', count);
+          ['loaderVisitorCount', 'visitorCount'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.textContent = count.toLocaleString();
+          });
         }
+
+        document.addEventListener('DOMContentLoaded', updateVisitorCount);
 
         // 表单处理
         const contactForm = document.getElementById('contactForm');
