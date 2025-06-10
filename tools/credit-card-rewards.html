@@ -1,0 +1,977 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>信用卡返现助手 - Leo Li</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        :root {
+            --primary-color: #3a86ff;
+            --secondary-color: #ff7aa2;
+            --accent-color: #00b4d8;
+            --success-color: #2ecc71;
+            --warning-color: #f39c12;
+            --danger-color: #e74c3c;
+            --dark-color: #2c3e50;
+            --light-color: #ffffff;
+            --gray-color: #f8f9fa;
+            --text-color: #333333;
+            --text-light: #666666;
+            --border-color: #e0e0e0;
+            --shadow-sm: 0 2px 4px rgba(0,0,0,0.1);
+            --shadow-md: 0 4px 6px rgba(0,0,0,0.1);
+            --shadow-lg: 0 10px 15px rgba(0,0,0,0.1);
+            --transition: all 0.3s ease;
+            --border-radius: 12px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background-color: var(--gray-color);
+            min-height: 100vh;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 3rem 0;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: float 20s infinite ease-in-out;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            50% { transform: translate(30px, -30px) rotate(180deg); }
+        }
+
+        .header-content {
+            position: relative;
+            z-index: 1;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+        }
+
+        .header-icon {
+            font-size: 3rem;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .back-link {
+            position: absolute;
+            top: 1rem;
+            left: 1rem;
+            color: white;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: rgba(255,255,255,0.2);
+            border-radius: 25px;
+            transition: var(--transition);
+        }
+
+        .back-link:hover {
+            background: rgba(255,255,255,0.3);
+            transform: translateX(-5px);
+        }
+
+        /* Container */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Date Display */
+        .current-date {
+            text-align: center;
+            margin-bottom: 2rem;
+            font-size: 1.1rem;
+            color: var(--text-light);
+        }
+
+        .current-date strong {
+            color: var(--primary-color);
+        }
+
+        /* Calculator Section */
+        .calculator-section {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 2rem;
+            box-shadow: var(--shadow-md);
+            margin-bottom: 2rem;
+        }
+
+        .calculator-section h2 {
+            margin-bottom: 1.5rem;
+            color: var(--dark-color);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .category-selector {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .category-input {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .category-input label {
+            font-weight: 500;
+            color: var(--text-color);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .category-input input,
+        .category-input select {
+            padding: 0.75rem;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+
+        .category-input input:focus,
+        .category-input select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        .calculate-btn {
+            width: 100%;
+            padding: 1rem;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            margin-top: 1rem;
+        }
+
+        .calculate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        /* Results Section */
+        .results-section {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 2rem;
+            box-shadow: var(--shadow-md);
+            margin-bottom: 2rem;
+            display: none;
+        }
+
+        .results-section.active {
+            display: block;
+        }
+
+        .results-header {
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        .results-header h3 {
+            color: var(--dark-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .total-amount {
+            font-size: 2rem;
+            color: var(--success-color);
+            font-weight: 700;
+        }
+
+        .card-results {
+            display: grid;
+            gap: 1rem;
+        }
+
+        .card-result {
+            background: var(--gray-color);
+            padding: 1.5rem;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card-result.best {
+            background: linear-gradient(135deg, #f0f9ff, #e0f2fe);
+            border: 2px solid var(--primary-color);
+        }
+
+        .card-result.best::before {
+            content: '最佳选择';
+            position: absolute;
+            top: 0;
+            right: 0;
+            background: var(--primary-color);
+            color: white;
+            padding: 0.25rem 1rem;
+            font-size: 0.8rem;
+            border-bottom-left-radius: 8px;
+        }
+
+        .card-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .card-icon {
+            width: 60px;
+            height: 40px;
+            background: linear-gradient(135deg, #1a1a1a, #333);
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 0.8rem;
+        }
+
+        .card-name {
+            font-weight: 600;
+            color: var(--dark-color);
+        }
+
+        .card-cashback {
+            text-align: right;
+        }
+
+        .cashback-amount {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--success-color);
+        }
+
+        .cashback-rate {
+            color: var(--text-light);
+            font-size: 0.9rem;
+        }
+
+        /* Cards Overview Section */
+        .cards-overview {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 2rem;
+            box-shadow: var(--shadow-md);
+        }
+
+        .cards-overview h2 {
+            margin-bottom: 1.5rem;
+            color: var(--dark-color);
+        }
+
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .card-detail {
+            background: var(--gray-color);
+            border-radius: 8px;
+            padding: 1.5rem;
+            transition: var(--transition);
+        }
+
+        .card-detail:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .card-detail h3 {
+            color: var(--dark-color);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .benefits-list {
+            list-style: none;
+        }
+
+        .benefits-list li {
+            padding: 0.5rem 0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-light);
+        }
+
+        .benefits-list li strong {
+            color: var(--primary-color);
+        }
+
+        .benefit-icon {
+            color: var(--success-color);
+            flex-shrink: 0;
+        }
+
+        /* Quarterly Categories */
+        .quarterly-notice {
+            background: linear-gradient(135deg, #fff5e6, #ffe4cc);
+            border: 2px solid var(--warning-color);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 1rem;
+            text-align: center;
+        }
+
+        .quarterly-notice strong {
+            color: var(--warning-color);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .category-selector {
+                grid-template-columns: 1fr;
+            }
+
+            .card-result {
+                flex-direction: column;
+                text-align: center;
+                gap: 1rem;
+            }
+
+            .cards-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Loading Animation */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <a href="../index.html" class="back-link">
+            <i class="fas fa-arrow-left"></i>
+            返回主页
+        </a>
+        <div class="header-content">
+            <h1>
+                <span class="header-icon">💳</span>
+                信用卡返现助手
+            </h1>
+            <p>智能计算最优返现方案，最大化您的信用卡收益</p>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- 当前日期显示 -->
+        <div class="current-date">
+            当前日期：<strong id="currentDate"></strong> | 当前季度：<strong id="currentQuarter"></strong>
+        </div>
+
+        <!-- 计算器部分 -->
+        <section class="calculator-section">
+            <h2><i class="fas fa-calculator"></i> 返现计算器</h2>
+            <div class="category-selector">
+                <div class="category-input">
+                    <label><i class="fas fa-shopping-cart"></i> 购物金额 ($)</label>
+                    <input type="number" id="shoppingAmount" placeholder="0" min="0" step="0.01">
+                </div>
+                <div class="category-input">
+                    <label><i class="fas fa-store"></i> 消费类别</label>
+                    <select id="category">
+                        <option value="grocery">超市 Grocery</option>
+                        <option value="gas">加油站 Gas</option>
+                        <option value="restaurant">餐厅 Restaurant</option>
+                        <option value="travel">旅行 Travel</option>
+                        <option value="hotel">酒店 Hotel</option>
+                        <option value="airline">航空 Airline</option>
+                        <option value="united">联合航空 United Airlines</option>
+                        <option value="transit">公共交通 Transit</option>
+                        <option value="streaming">流媒体 Streaming</option>
+                        <option value="netflix">Netflix</option>
+                        <option value="spotify">Spotify</option>
+                        <option value="youtube">YouTube Premium</option>
+                        <option value="disney">Disney+</option>
+                        <option value="hulu">Hulu</option>
+                        <option value="amazon">亚马逊 Amazon</option>
+                        <option value="target">Target</option>
+                        <option value="walmart">Walmart</option>
+                        <option value="costco">Costco</option>
+                        <option value="wholesale">批发店 Wholesale Club</option>
+                        <option value="drugstore">药店 Drugstore</option>
+                        <option value="walgreens">Walgreens</option>
+                        <option value="cvs">CVS</option>
+                        <option value="duanereade">Duane Reade</option>
+                        <option value="homeimprovement">家装店 Home Improvement</option>
+                        <option value="homedepot">Home Depot</option>
+                        <option value="lowes">Lowe's</option>
+                        <option value="acehardware">Ace Hardware</option>
+                        <option value="paypal">PayPal</option>
+                        <option value="apple">Apple Store/App Store</option>
+                        <option value="uber">Uber/Uber Eats</option>
+                        <option value="nike">Nike</option>
+                        <option value="tmobile">T-Mobile</option>
+                        <option value="panera">Panera Bread</option>
+                        <option value="exxon">Exxon</option>
+                        <option value="mobil">Mobil</option>
+                        <option value="rent">房租 Rent</option>
+                        <option value="utilities">水电费 Utilities</option>
+                        <option value="insurance">保险 Insurance</option>
+                        <option value="gym">健身房 Gym</option>
+                        <option value="fitness">健身 Fitness</option>
+                        <option value="entertainment">娱乐 Entertainment</option>
+                        <option value="onlinegrocery">在线超市 Online Grocery</option>
+                        <option value="other">其他 Other</option>
+                    </select>
+                </div>
+                <div class="category-input">
+                    <label><i class="fas fa-credit-card"></i> 支付方式</label>
+                    <select id="paymentMethod">
+                        <option value="physical">实体卡/在线支付</option>
+                        <option value="applepay">Apple Pay</option>
+                        <option value="googlepay">Google Pay</option>
+                        <option value="samsungpay">Samsung Pay</option>
+                    </select>
+                </div>
+            </div>
+            <button class="calculate-btn" onclick="calculateRewards()">
+                <i class="fas fa-chart-line"></i> 计算最佳返现
+            </button>
+        </section>
+
+        <!-- 结果显示部分 -->
+        <section class="results-section" id="resultsSection">
+            <div class="results-header">
+                <h3>返现计算结果</h3>
+                <div class="total-amount" id="totalAmount">$0.00</div>
+            </div>
+            <div class="card-results" id="cardResults"></div>
+        </section>
+
+        <!-- 信用卡详情部分 -->
+        <section class="cards-overview">
+            <h2><i class="fas fa-credit-card"></i> 我的信用卡一览</h2>
+            <div class="cards-grid">
+                <!-- Amex Blue Cash -->
+                <div class="card-detail">
+                    <h3><span class="card-icon" style="background: linear-gradient(135deg, #006fcf, #004999);">AMEX</span> Blue Cash Everyday</h3>
+                    <ul class="benefits-list">
+                        <li><i class="fas fa-check benefit-icon"></i> <strong>3%</strong> 美国超市 (年度上限$6000)</li>
+                        <li><i class="fas fa-check benefit-icon"></i> <strong>2%</strong> 美国加油站</li>
+                        <li><i class="fas fa-check benefit-icon"></i> <strong>2%</strong> 美国百货商店</li>
+                        <li><i class="fas fa-check benefit-icon"></i> <strong>1%</strong> 其他消费</li>
+                    </ul>
+                </div>
+
+                <!-- Amex Platinum -->
+                <div class="card-detail">
+                    <h3><span class="card-icon" style="background: linear-gradient(135deg, #c0c0c0, #757575);">AMEX</span> Platinum</h3>
+                    <ul class="benefits-list">
+                        <li><i class="fas fa-check benefit-icon"></i> <strong>5x</strong> 航空直接预订或通过Amex Travel</li>
+                        <li><i class="fas fa-check benefit-icon"></i> <strong>5x</strong> 通过Amex Travel预订的酒店</li>
+                        <li><i class="fas fa-check benefit-icon"></i> <strong>1x</strong> 其他消费</li>
+                        <li><i class="fas fa-star" style="color: gold;"></i> 高端旅行福利</li>
+                    </ul>
+                </div>
+
+                <!-- Discover -->
+                <div class="card-detail">
+                    <h3><span class="card-icon" style="background: linear-gradient(135deg, #ff6600, #ff8533);">DISC</span> Discover It</h3>
+                    <ul class="benefits-list">
+                        <li><i class="fas fa-check benefit-icon"></i> <strong>5%</strong> <span id="discoverCurrentCategory">加载中...</span></li>
+                        <li><i class="fas fa-check benefit-icon"></i> <strong>1%</strong> 其他消费</li>
+                        <li><i class="fas fa-star" style="color: gold;"></i> 第一年所有返现翻倍</li>
+                    </ul>
+                    <div class="quarterly-notice">
+                        <i class="fas fa-info-circle"></i> <strong>当前季度类别</strong>需要手动激活
+                    </div>
+                </div>
+
+                <!-- Chase Freedom Unlimited -->
+                <div class="card-detail">
+                    <h3><span class="card-icon" style="background: linear-gradient(135deg, #003366, #004080);">CHASE</span> Freedom Unlimited</h3>
+                    <ul class="benefits-list">
+                        <li><i class="fas fa-check benefit-icon"></i> <strong>5%</strong> 通过Chase Travel预订的旅行</li>
+                        <li><i class="fas fa-check benefit-icon"></i> <strong>3%</strong> 餐厅和药店</li>
+                        <li><i class="fas fa-check benefit-icon"></i> <strong>1.5%</strong> 所有其他消费</li>
+                        <li><i class="fas fa-star" style="color: gold;"></i> 无年费</li>
+                    </ul>
+                </div>
+
+                <!-- Chase United -->
+                <div class="card-detail">
+                    <h3><span class="card-icon" style="background: linear-gradient(135deg, #003366, #004080);">CHASE</span> United Explorer</h3>
+                    <ul class="benefits-list">
+                        <li><i class="fas fa-check benefit-icon"></i> <strong>2x</strong> 联合航空购买</li>
+                        <li><i class="fas fa-check benefit-icon"></i> <strong>2x</strong> 餐厅、酒店</li>
+                        <li><i class="fas fa-check benefit-icon"></i> <strong>1x</strong> 其他消费</li>
+                    </ul>
+                </div>
+
+                <!-- CSP -->
+                <div class="card-detail">
+                    <h3><span class="card-icon" style="background: linear-gradient(135deg, #003366, #1a5490);">CHASE</span> Sapphire Preferred</h3>
+                    <ul class="benefits-list">
+                        <li><i class="fas fa-check benefit-icon"></i> <strong>5x</strong> 通过Chase Travel预订的旅行</li>
+                        <li><i class="fas fa-check benefit-icon"></i> <strong>3x</strong> 餐厅（包括外卖）</li>
+                        <li><i class="fas fa-check benefit-icon"></i> <strong>3x</strong> 在线超市</li>
+                        <li><i class="fas fa-check benefit-icon"></i> <strong>3x</strong> 部分流媒体服务</li>
+                        <li><i class="fas fa-check benefit-icon"></i> <strong>2x</strong> 其他旅行</li>
+                        <li><i class="fas fa-check benefit-icon"></i> <strong>1x</strong> 其他消费</li>
+                    </ul>
+                </div>
+
+                <!-- Bilt -->
+                <div class="card-detail">
+                    <h3><span class="card-icon" style="background: linear-gradient(135deg, #000000, #333333);">BILT</span> Mastercard</h3>
+                    <ul class="benefits-list">
+                        <li><i class="fas fa-check benefit-icon"></i> <strong>1x</strong> 房租 (无手续费！)</li>
+                        <li><i class="fas fa-check benefit-icon"></i> <strong>3x</strong> 餐厅</li>
+                        <li><i class="fas fa-check benefit-icon"></i> <strong>2x</strong> 旅行</li>
+                        <li><i class="fas fa-check benefit-icon"></i> <strong>1x</strong> 其他消费</li>
+                        <li><i class="fas fa-star" style="color: gold;"></i> 每月1日Rent Day双倍积分</li>
+                    </ul>
+                </div>
+
+                <!-- Apple Card -->
+                <div class="card-detail">
+                    <h3><span class="card-icon" style="background: linear-gradient(135deg, #999999, #666666);">APPLE</span> Card</h3>
+                    <ul class="benefits-list">
+                        <li><i class="fas fa-check benefit-icon"></i> <strong>3%</strong> Apple产品和服务</li>
+                        <li><i class="fas fa-check benefit-icon"></i> <strong>3%</strong> 特定商家（见下方列表）</li>
+                        <li><i class="fas fa-check benefit-icon"></i> <strong>2%</strong> Apple Pay支付</li>
+                        <li><i class="fas fa-check benefit-icon"></i> <strong>1%</strong> 实体卡支付</li>
+                    </ul>
+                    <div style="margin-top: 1rem; padding: 0.75rem; background: rgba(0,0,0,0.05); border-radius: 8px; font-size: 0.85rem;">
+                        <strong>3%返现商家：</strong> Apple, Uber, Uber Eats, Walgreens, Nike, T-Mobile, Exxon, Mobil, Panera, Ace Hardware, Duane Reade
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 使用提示 -->
+        <section class="cards-overview" style="margin-top: 2rem;">
+            <h2><i class="fas fa-info-circle"></i> 使用提示</h2>
+            <div style="background: linear-gradient(135deg, #e3f2fd, #f3e5f5); padding: 1.5rem; border-radius: 8px;">
+                <ul style="list-style: none; padding: 0;">
+                    <li style="margin-bottom: 1rem;">
+                        <i class="fas fa-lightbulb" style="color: #f39c12; margin-right: 0.5rem;"></i>
+                        <strong>Apple Card:</strong> 使用Apple Pay支付可获得2%返现，实体卡只有1%
+                    </li>
+                    <li style="margin-bottom: 1rem;">
+                        <i class="fas fa-lightbulb" style="color: #f39c12; margin-right: 0.5rem;"></i>
+                        <strong>积分价值：</strong> Chase和Amex积分价值可能高于1.5美分/点，具体取决于兑换方式（转点给航空/酒店伙伴通常价值更高）
+                    </li>
+                    <li style="margin-bottom: 1rem;">
+                        <i class="fas fa-lightbulb" style="color: #f39c12; margin-right: 0.5rem;"></i>
+                        <strong>返现上限：</strong> Amex Blue Cash超市返现年度上限$6,000；Discover季度5%返现上限$1,500
+                    </li>
+                    <li style="margin-bottom: 1rem;">
+                        <i class="fas fa-lightbulb" style="color: #f39c12; margin-right: 0.5rem;"></i>
+                        <strong>特殊类别：</strong> Chase旅行返现仅限通过Chase Travel预订；Amex Platinum酒店5x仅限Amex Travel；United卡航空2x仅限联合航空
+                    </li>
+                    <li style="margin-bottom: 1rem;">
+                        <i class="fas fa-lightbulb" style="color: #f39c12; margin-right: 0.5rem;"></i>
+                        <strong>季度激活：</strong> Discover的5%季度返现需要手动激活
+                    </li>
+                    <li>
+                        <i class="fas fa-exclamation-triangle" style="color: #e74c3c; margin-right: 0.5rem;"></i>
+                        <strong>类别注意：</strong> Costco、Sam's Club等批发店通常不算作超市类别；Target和Walmart在某些卡上可能算作百货而非超市
+                    </li>
+                </ul>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        // 信用卡返现数据
+        const cards = {
+            'Amex Blue Cash': {
+                icon: 'AMEX',
+                iconColor: 'linear-gradient(135deg, #006fcf, #004999)',
+                rewards: {
+                    grocery: 3,
+                    gas: 2,
+                    target: 2, // 部分百货商店
+                    other: 1,
+                    default: 1
+                },
+                limits: {
+                    grocery: 6000 // 年度上限
+                }
+            },
+            'Amex Platinum': {
+                icon: 'AMEX',
+                iconColor: 'linear-gradient(135deg, #c0c0c0, #757575)',
+                rewards: {
+                    airline: 5, // 直接航空公司或通过Amex Travel
+                    hotel: 5, // 仅通过Amex Travel
+                    travel: 5, // 通过Amex Travel
+                    other: 1,
+                    default: 1
+                },
+                isPoints: true
+            },
+            'Discover': {
+                icon: 'DISC',
+                iconColor: 'linear-gradient(135deg, #ff6600, #ff8533)',
+                rewards: {
+                    quarterly: 5,
+                    other: 1,
+                    default: 1
+                },
+                quarterlyCategories: {}, // 动态设置
+                limits: {
+                    quarterly: 1500 // 季度上限
+                }
+            },
+            'Chase Freedom Unlimited': {
+                icon: 'CHASE',
+                iconColor: 'linear-gradient(135deg, #003366, #004080)',
+                rewards: {
+                    travel: 5, // 通过Chase Travel
+                    restaurant: 3,
+                    drugstore: 3,
+                    walgreens: 3,
+                    cvs: 3,
+                    other: 1.5,
+                    default: 1.5
+                }
+            },
+            'Chase United': {
+                icon: 'CHASE',
+                iconColor: 'linear-gradient(135deg, #003366, #004080)',
+                rewards: {
+                    airline: 2, // 仅限联合航空
+                    united: 2, // 联合航空
+                    restaurant: 2,
+                    hotel: 2,
+                    other: 1,
+                    default: 1
+                },
+                isPoints: true
+            },
+            'CSP': {
+                icon: 'CSP',
+                iconColor: 'linear-gradient(135deg, #003366, #1a5490)',
+                rewards: {
+                    travel: 5, // 通过Chase Travel
+                    restaurant: 3,
+                    grocery: 3, // 在线超市
+                    onlinegrocery: 3,
+                    streaming: 3,
+                    netflix: 3,
+                    spotify: 3,
+                    youtube: 3,
+                    disney: 3,
+                    hulu: 3,
+                    hotel: 2, // 直接预订
+                    airline: 2, // 直接预订
+                    transit: 2,
+                    other: 1,
+                    default: 1
+                },
+                isPoints: true
+            },
+            'Bilt': {
+                icon: 'BILT',
+                iconColor: 'linear-gradient(135deg, #000000, #333333)',
+                rewards: {
+                    rent: 1,
+                    restaurant: 3,
+                    travel: 2,
+                    hotel: 2,
+                    airline: 2,
+                    other: 1,
+                    default: 1
+                },
+                isPoints: true
+            },
+            'Apple Card': {
+                icon: 'APPLE',
+                iconColor: 'linear-gradient(135deg, #999999, #666666)',
+                rewards: {
+                    apple: 3,
+                    walgreens: 3,
+                    uber: 3,
+                    nike: 3,
+                    tmobile: 3,
+                    panera: 3,
+                    exxon: 3,
+                    mobil: 3,
+                    duanereade: 3,
+                    acehardware: 3,
+                    // Apple Pay 2% - 需要特殊处理
+                    applePay: 2,
+                    other: 1,
+                    default: 1
+                }
+            }
+        };
+
+        // 2025年季度类别定义 (仅Discover有季度类别)
+        const quarterlyCategories2025 = {
+            discover: {
+                Q1: ['grocery', 'walgreens', 'cvs', 'drugstore'], // 1-3月：超市、药店
+                Q2: ['gas', 'homeimprovement', 'lowes', 'homedepot'], // 4-6月：加油站、家装店
+                Q3: ['restaurant', 'paypal'], // 7-9月：餐厅、PayPal
+                Q4: ['amazon', 'target', 'walmart'] // 10-12月：Amazon、Target、Walmart
+            }
+        };
+
+        // 获取当前季度
+        function getCurrentQuarter() {
+            const month = new Date().getMonth() + 1;
+            if (month <= 3) return 'Q1';
+            if (month <= 6) return 'Q2';
+            if (month <= 9) return 'Q3';
+            return 'Q4';
+        }
+
+        // 初始化页面
+        function initializePage() {
+            // 显示当前日期
+            const now = new Date();
+            const dateStr = now.toLocaleDateString('zh-CN', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+            document.getElementById('currentDate').textContent = dateStr;
+
+            // 显示当前季度
+            const quarter = getCurrentQuarter();
+            const quarterText = {
+                'Q1': '第一季度 (1-3月)',
+                'Q2': '第二季度 (4-6月)',
+                'Q3': '第三季度 (7-9月)',
+                'Q4': '第四季度 (10-12月)'
+            };
+            document.getElementById('currentQuarter').textContent = quarterText[quarter];
+
+            // 更新季度类别
+            updateQuarterlyCategories(quarter);
+        }
+
+        // 更新季度类别
+        function updateQuarterlyCategories(quarter) {
+            // Discover
+            const discoverCats = quarterlyCategories2025.discover[quarter];
+            cards['Discover'].quarterlyCategories = discoverCats;
+
+            const discoverText = {
+                'Q1': '超市、药店 (Walgreens, CVS)',
+                'Q2': '加油站、家装店 (Lowe\'s, Home Depot)',
+                'Q3': '餐厅、PayPal',
+                'Q4': 'Amazon、Target、Walmart'
+            };
+            document.getElementById('discoverCurrentCategory').textContent = discoverText[quarter] + ' (上限$1,500)';
+        }
+
+        // 计算返现
+        function calculateRewards() {
+            const amount = parseFloat(document.getElementById('shoppingAmount').value) || 0;
+            const category = document.getElementById('category').value;
+            const paymentMethod = document.getElementById('paymentMethod').value;
+
+            if (amount <= 0) {
+                alert('请输入有效的购物金额');
+                return;
+            }
+
+            // 计算每张卡的返现
+            const results = [];
+
+            for (const [cardName, cardData] of Object.entries(cards)) {
+                let rate = cardData.rewards.default || 1;
+
+                // 特殊处理Apple Card
+                if (cardName === 'Apple Card') {
+                    // 先检查是否是特定商家
+                    if (cardData.rewards[category]) {
+                        rate = cardData.rewards[category];
+                    } else if (paymentMethod === 'applepay') {
+                        // 使用Apple Pay支付获得2%
+                        rate = 2;
+                    } else {
+                        // 实体卡只有1%
+                        rate = 1;
+                    }
+                } else {
+                    // 其他卡的逻辑
+                    // 检查是否是季度类别
+                    if (cardData.quarterlyCategories && cardData.quarterlyCategories.includes(category)) {
+                        rate = cardData.rewards.quarterly;
+                    } else if (cardData.rewards[category]) {
+                        rate = cardData.rewards[category];
+                    }
+                }
+
+                // 检查年度/季度限制
+                let limitNote = '';
+                if (cardName === 'Amex Blue Cash' && category === 'grocery') {
+                    limitNote = ' (年度上限$6,000)';
+                } else if (cardName === 'Discover' && cardData.quarterlyCategories && cardData.quarterlyCategories.includes(category)) {
+                    limitNote = ' (季度上限$1,500)';
+                }
+
+                const cashback = amount * (rate / 100);
+                results.push({
+                    name: cardName,
+                    rate: rate,
+                    cashback: cashback,
+                    isPoints: cardData.isPoints,
+                    icon: cardData.icon,
+                    iconColor: cardData.iconColor,
+                    limitNote: limitNote
+                });
+            }
+
+            // 排序结果
+            results.sort((a, b) => b.cashback - a.cashback);
+
+            // 显示结果
+            displayResults(results, amount);
+        }
+
+        // 显示结果
+        function displayResults(results, amount) {
+            const resultsSection = document.getElementById('resultsSection');
+            const cardResults = document.getElementById('cardResults');
+            const totalAmount = document.getElementById('totalAmount');
+
+            // 清空之前的结果
+            cardResults.innerHTML = '';
+
+            // 显示最高返现金额
+            const bestCashback = results[0].cashback;
+            totalAmount.textContent = `${bestCashback.toFixed(2)}`;
+
+            // 显示每张卡的结果
+            results.forEach((result, index) => {
+                const isBest = index === 0;
+                const cardDiv = document.createElement('div');
+                cardDiv.className = `card-result ${isBest ? 'best' : ''}`;
+
+                cardDiv.innerHTML = `
+                    <div class="card-info">
+                        <div class="card-icon" style="background: ${result.iconColor};">
+                            ${result.icon}
+                        </div>
+                        <div>
+                            <div class="card-name">${result.name}</div>
+                            <div class="cashback-rate">${result.rate}% ${result.isPoints ? '积分' : '返现'}${result.limitNote}</div>
+                        </div>
+                    </div>
+                    <div class="card-cashback">
+                        <div class="cashback-amount">
+                            ${result.isPoints ? result.cashback.toFixed(0) + '分' : '$' + result.cashback.toFixed(2)}
+                        </div>
+                        <div class="cashback-rate">
+                            ${result.isPoints ? '价值约$' + (result.cashback * 0.015).toFixed(2) : ''}
+                        </div>
+                    </div>
+                `;
+
+                cardResults.appendChild(cardDiv);
+            });
+
+            // 显示结果部分
+            resultsSection.classList.add('active');
+
+            // 滚动到结果
+            resultsSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+
+        // 页面加载时初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            initializePage();
+
+            // 回车键触发计算
+            document.getElementById('shoppingAmount').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    calculateRewards();
+                }
+            });
+        });
+    </script>
+</body>
+</html>

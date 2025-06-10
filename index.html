@@ -1,13 +1,15 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="李利鑫(Leo Li) - 计算机科学家和机器学习工程师的个人作品集">
+    <meta name="keywords" content="Leo Li, 李利鑫, Machine Learning, AI, Computer Science">
     <title>Lixin (Leo) Li | Personal Portfolio</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Space+Mono:wght@400;700&display=swap');
-        
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap');
+
         :root {
             --primary-color: #3a86ff;
             --secondary-color: #ff7aa2;
@@ -17,10 +19,30 @@
             --light-color: #ffffff;
             --gray-color: #f8f9fa;
             --text-color: #333333;
-            --transition: all 0.3s ease;
-            --cat-color-1: #ff7aa2; /* 猫咪主色 - 粉色 */
-            --cat-color-2: #ffc2d6; /* 猫咪辅色 - 浅粉色 */
-            --cat-color-3: #663399; /* 猫咪辅色 - 紫色 */
+            --text-light: #666666;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --shadow-sm: 0 2px 4px rgba(0,0,0,0.1);
+            --shadow-md: 0 4px 6px rgba(0,0,0,0.1);
+            --shadow-lg: 0 10px 15px rgba(0,0,0,0.1);
+            --shadow-xl: 0 20px 25px rgba(0,0,0,0.1);
+            --cat-color-1: #ff7aa2;
+            --cat-color-2: #ffc2d6;
+            --cat-color-3: #663399;
+            --border-radius: 12px;
+            --max-width: 1200px;
+        }
+
+        /* 暗黑模式支持 */
+        [data-theme="dark"] {
+            --light-color: #0a192f;
+            --dark-color: #ffffff;
+            --gray-color: #1a2332;
+            --text-color: #e6f1ff;
+            --text-light: #a8b2d1;
+            --shadow-sm: 0 2px 4px rgba(0,0,0,0.3);
+            --shadow-md: 0 4px 6px rgba(0,0,0,0.3);
+            --shadow-lg: 0 10px 15px rgba(0,0,0,0.3);
+            --shadow-xl: 0 20px 25px rgba(0,0,0,0.3);
         }
 
         * {
@@ -29,12 +51,41 @@
             box-sizing: border-box;
         }
 
+        html {
+            scroll-behavior: smooth;
+        }
+
         body {
-            font-family: 'Roboto', sans-serif;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
             line-height: 1.6;
             color: var(--text-color);
             background-color: var(--light-color);
             overflow-x: hidden;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        /* 自定义滚动条 */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--gray-color);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary-color);
+            border-radius: 5px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--secondary-color);
+        }
+
+        /* 选择文本样式 */
+        ::selection {
+            background-color: var(--primary-color);
+            color: white;
         }
 
         a {
@@ -47,670 +98,474 @@
         }
 
         .container {
-            max-width: 1200px;
+            max-width: var(--max-width);
             margin: 0 auto;
             padding: 0 2rem;
         }
 
-        /* Entry Animation */
-        .entry-animation {
+        /* 加载动画 */
+        .loader {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: var(--darker-color);
+            background-color: var(--light-color);
             display: flex;
             justify-content: center;
             align-items: center;
             z-index: 10000;
-            transition: opacity 1s ease;
-            perspective: 1000px;
-            overflow: hidden;
+            transition: opacity 0.5s ease, visibility 0.5s ease;
         }
 
-        .entry-animation.fade-out {
+        .loader.hidden {
             opacity: 0;
-            pointer-events: none;
+            visibility: hidden;
         }
 
-        .animation-container {
-            position: relative;
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-            perspective: 1000px;
-        }
-
-        .grid-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 200%;
-            height: 200%;
-            background-image: 
-                linear-gradient(to right, rgba(58, 134, 255, 0.1) 1px, transparent 1px),
-                linear-gradient(to bottom, rgba(58, 134, 255, 0.1) 1px, transparent 1px);
-            background-size: 50px 50px;
-            z-index: 1;
-            transform: translateZ(0);
-            animation: gridMove 40s linear infinite;
-        }
-
-        @keyframes gridMove {
-            0% {
-                transform: translate3d(-50%, -50%, 0) rotateX(60deg) scale(2);
-            }
-            100% {
-                transform: translate3d(0%, 0%, 0) rotateX(60deg) scale(2);
-            }
-        }
-
-        .cyber-circle {
-            position: absolute;
-            width: 300px;
-            height: 300px;
-            border-radius: 50%;
-            border: 2px solid rgba(58, 134, 255, 0.3);
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            box-shadow: 0 0 20px rgba(58, 134, 255, 0.2);
-            opacity: 0;
-            animation: circlePulse 4s ease-in-out infinite, fadeIn 2s forwards;
-        }
-
-        .cyber-circle:nth-child(2) {
-            width: 400px;
-            height: 400px;
-            border-color: rgba(131, 56, 236, 0.3);
-            animation-delay: 0.5s;
-        }
-
-        .cyber-circle:nth-child(3) {
-            width: 500px;
-            height: 500px;
-            border-color: rgba(255, 122, 162, 0.3);
-            animation-delay: 1s;
-        }
-
-        @keyframes circlePulse {
-            0%, 100% {
-                transform: translate(-50%, -50%) scale(1);
-                box-shadow: 0 0 20px rgba(58, 134, 255, 0.2);
-            }
-            50% {
-                transform: translate(-50%, -50%) scale(1.1);
-                box-shadow: 0 0 30px rgba(58, 134, 255, 0.4);
-            }
-        }
-
-        .code-rain {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 0;
-            opacity: 0.3;
-        }
-
-        .code-column {
-            position: absolute;
-            top: -20%;
-            font-family: 'Space Mono', monospace;
-            color: var(--primary-color);
-            font-size: 12px;
-            white-space: nowrap;
-            transform: translateZ(0);
-        }
-
-        .particles {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 3;
-        }
-
-        .particle {
-            position: absolute;
-            background-color: var(--accent-color);
-            border-radius: 50%;
-            box-shadow: 0 0 10px 2px var(--accent-color);
-            transform: translateZ(0);
-        }
-
-        .glow-container {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 600px;
-            height: 600px;
-            border-radius: 50%;
-            background: radial-gradient(circle, rgba(58, 134, 255, 0.1) 0%, transparent 70%);
-            animation: glowPulse 4s ease-in-out infinite;
-            z-index: 2;
-        }
-
-        @keyframes glowPulse {
-            0%, 100% {
-                opacity: 0.3;
-                transform: translate(-50%, -50%) scale(1);
-            }
-            50% {
-                opacity: 0.6;
-                transform: translate(-50%, -50%) scale(1.2);
-            }
-        }
-
-        .hologram-effect {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 300px;
-            height: 300px;
-            overflow: hidden;
-            z-index: 4;
-            opacity: 0;
-            animation: fadeIn 1s forwards 0.5s;
-        }
-
-        .hologram-lines {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: repeating-linear-gradient(
-                0deg,
-                transparent,
-                rgba(58, 134, 255, 0.2) 1px,
-                transparent 2px
-            );
-            animation: hologramScan 3s linear infinite;
-        }
-
-        @keyframes hologramScan {
-            0% {
-                transform: translateY(-100%);
-            }
-            100% {
-                transform: translateY(100%);
-            }
-        }
-
-        .logo-animation {
-            position: relative;
-            z-index: 5;
+        .loader-content {
             text-align: center;
-            color: var(--light-color);
-            font-family: 'Space Mono', monospace;
         }
 
-        .logo-animation h1 {
-            font-size: 4.5rem;
-            font-weight: 700;
-            margin-bottom: 1rem;
-            opacity: 0;
-            transform: translateY(20px) translateZ(0);
-            animation: glitchText 1s ease forwards 0.5s;
-            text-shadow: 0 0 15px var(--primary-color);
-            letter-spacing: 5px;
-            position: relative;
-        }
-        
-        .logo-animation h1::before,
-        .logo-animation h1::after {
-            content: '🐱';
-            font-size: 2.5rem;
-            position: absolute;
-            opacity: 0;
-            animation: fadeIn 1s ease forwards 2s;
-        }
-        
-        .logo-animation h1::before {
-            left: -2.5rem;
-            top: 0.8rem;
-        }
-        
-        .logo-animation h1::after {
-            right: -2.5rem;
-            top: 0.8rem;
+        .loader-cat {
+            font-size: 4rem;
+            animation: catBounce 1s infinite ease-in-out;
         }
 
-        @keyframes glitchText {
-            0% {
-                opacity: 0;
-                transform: translateY(20px) translateZ(0);
-                text-shadow: 0 0 5px var(--primary-color);
-            }
-            20% {
-                opacity: 0.5;
-                transform: translateY(10px) translateZ(0) skewX(10deg);
-                text-shadow: -5px 0 15px var(--primary-color), 5px 0 15px var(--secondary-color);
-            }
-            21% {
-                opacity: 0.5;
-                transform: translateY(10px) translateZ(0) skewX(-10deg);
-                text-shadow: 5px 0 15px var(--primary-color), -5px 0 15px var(--secondary-color);
-            }
-            40%, 100% {
-                opacity: 1;
-                transform: translateY(0) translateZ(0);
-                text-shadow: 0 0 15px var(--primary-color);
-            }
-        }
-
-        .logo-animation .tagline {
-            font-size: 1.5rem;
-            opacity: 0;
-            transform: translateY(20px) translateZ(0);
-            animation: fadeInUp 1s ease forwards 1.5s;
-            text-shadow: 0 0 10px var(--accent-color);
-        }
-
-        .logo-animation .loading-bar {
-            width: 300px;
-            height: 2px;
-            background-color: rgba(255, 255, 255, 0.1);
-            margin: 2rem auto;
-            position: relative;
-            border-radius: 2px;
-            overflow: hidden;
-            opacity: 0;
-            animation: fadeIn 0.5s ease forwards 2s;
-            box-shadow: 0 0 10px rgba(0, 180, 216, 0.3);
-        }
-
-        .logo-animation .loading-progress {
-            position: absolute;
-            top: 0;
-            left: 0;
-            height: 100%;
-            width: 0;
-            background: linear-gradient(to right, var(--primary-color), var(--cat-color-1));
-            animation: loading 2.5s ease-in-out forwards 2.2s;
-            box-shadow: 0 0 15px var(--cat-color-1);
-        }
-
-        .logo-animation::before, .logo-animation::after {
-            content: '';
-            position: absolute;
-            top: -20px;
-            width: 20px;
-            height: 1px;
-            background-color: var(--accent-color);
-            animation: scanline 4s linear infinite;
-            box-shadow: 0 0 15px var(--accent-color);
-            opacity: 0.5;
-        }
-
-        .logo-animation::before {
-            left: -50px;
-            transform: rotate(45deg);
-        }
-
-        .logo-animation::after {
-            right: -50px;
-            transform: rotate(-45deg);
-        }
-
-        @keyframes scanline {
-            0% {
-                top: -20px;
-            }
-            100% {
-                top: 100%;
-            }
-        }
-
-        .tech-symbols {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            top: 0;
-            left: 0;
-            z-index: 2;
-            opacity: 0.2;
-        }
-
-        .symbol {
-            position: absolute;
-            font-family: 'Space Mono', monospace;
-            color: var(--accent-color);
-            opacity: 0;
-            animation: symbolFade 4s ease infinite;
-        }
-        
-        .cat-symbol {
-            position: absolute;
+        .loader-text {
+            margin-top: 1rem;
             font-size: 1.2rem;
+            color: var(--text-light);
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .loader-progress {
+            width: 200px;
+            height: 4px;
+            background-color: var(--gray-color);
+            border-radius: 2px;
+            margin: 1rem auto 0;
+            overflow: hidden;
+        }
+
+        .loader-progress-bar {
+            height: 100%;
+            background: linear-gradient(to right, var(--primary-color), var(--cat-color-1));
+            width: 0%;
+            animation: loadProgress 2s ease-out forwards;
+        }
+
+        .loader-visitor-count {
+            margin-top: 1.5rem;
+            font-size: 0.9rem;
+            color: var(--text-light);
             opacity: 0;
-            animation: symbolFade 4s ease infinite;
-            z-index: 3;
+            animation: fadeIn 0.5s ease forwards 0.5s;
         }
 
-        @keyframes symbolFade {
-            0% {
-                opacity: 0;
-                transform: translateY(0);
-            }
-            50% {
-                opacity: 0.6;
-            }
-            100% {
-                opacity: 0;
-                transform: translateY(-20px);
-            }
+        .loader-visitor-count .counter-number {
+            color: var(--cat-color-1);
+            font-weight: 600;
+            font-family: 'JetBrains Mono', monospace;
         }
 
-        @keyframes loading {
-            0% { width: 0; box-shadow: 0 0 15px var(--accent-color); }
-            50% { box-shadow: 0 0 25px var(--accent-color); }
-            100% { width: 100%; box-shadow: 0 0 15px var(--accent-color); }
+        @keyframes loadProgress {
+            to { width: 100%; }
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
+        @keyframes catBounce {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(5deg); }
         }
 
-        @keyframes fadeOut {
-            from { opacity: 1; }
-            to { opacity: 0; }
-        }
-
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px) translateZ(0);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0) translateZ(0);
-            }
-        }
-
-        @keyframes particle-animation {
-            0% {
-                transform: translate3d(0, 0, 0) scale(1);
-                opacity: 0;
-            }
-            50% {
-                opacity: 1;
-                transform: translate3d(var(--end-x), var(--end-y), 0) scale(1.5);
-            }
-            100% {
-                transform: translate3d(calc(var(--end-x) * 2), calc(var(--end-y) * 2), 0) scale(1);
-                opacity: 0;
-            }
-        }
-
-        /* Header Styles */
+        /* Header改进 */
         header {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             z-index: 1000;
-            background-color: rgba(255, 255, 255, 0.95);
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            background-color: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            box-shadow: 0 1px 0 rgba(0,0,0,0.1);
             transition: var(--transition);
         }
 
+        [data-theme="dark"] header {
+            background-color: rgba(10, 25, 47, 0.9);
+        }
+
         header.scrolled {
-            background-color: rgba(255, 255, 255, 0.98);
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            box-shadow: var(--shadow-md);
         }
 
         .navbar {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 1.5rem 0;
+            padding: 1rem 0;
         }
 
         .logo {
-            font-size: 1.8rem;
+            font-size: 1.5rem;
             font-weight: 700;
             color: var(--primary-color);
-            position: relative;
-            font-family: 'Space Mono', monospace;
+            font-family: 'JetBrains Mono', monospace;
             display: flex;
             align-items: center;
+            transition: var(--transition);
         }
-        
+
+        .logo:hover {
+            transform: translateY(-2px);
+        }
+
         .logo .cat-icon {
             margin-right: 0.5rem;
-            font-size: 1.5rem;
-            animation: catBounce 2s infinite ease-in-out;
+            font-size: 1.8rem;
+            animation: catWiggle 3s infinite ease-in-out;
             display: inline-block;
         }
-        
-        @keyframes catBounce {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-5px); }
+
+        @keyframes catWiggle {
+            0%, 100% { transform: rotate(0deg); }
+            25% { transform: rotate(-5deg); }
+            75% { transform: rotate(5deg); }
         }
 
-        .logo::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 30%;
-            height: 3px;
-            background: linear-gradient(to right, var(--primary-color), var(--cat-color-1));
-        }
-
+        /* 导航改进 */
         .nav-links {
             display: flex;
             align-items: center;
-        }
-
-        .nav-links li {
-            margin-left: 2.5rem;
-            position: relative;
+            gap: 2rem;
         }
 
         .nav-links a {
             font-weight: 500;
+            position: relative;
+            padding: 0.5rem 0;
             transition: var(--transition);
-        }
-
-        .nav-links a:hover {
-            color: var(--primary-color);
         }
 
         .nav-links a::after {
             content: '';
             position: absolute;
-            bottom: -5px;
-            left: 0;
+            bottom: 0;
+            left: 50%;
             width: 0;
             height: 2px;
             background: linear-gradient(to right, var(--primary-color), var(--cat-color-1));
+            transform: translateX(-50%);
             transition: var(--transition);
         }
 
-        .nav-links a:hover::after {
+        .nav-links a:hover::after,
+        .nav-links a.active::after {
             width: 100%;
+        }
+
+        /* 控制按钮组 */
+        .nav-controls {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .theme-toggle {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--gray-color);
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+        }
+
+        .theme-toggle:hover {
+            background-color: var(--primary-color);
+            color: white;
+            transform: rotate(180deg);
         }
 
         .language-switch {
             display: flex;
             align-items: center;
             cursor: pointer;
-            padding: 0.5rem 1rem;
-            border-radius: 50px;
+            padding: 0.5rem 1.2rem;
+            border-radius: 25px;
             background-color: var(--gray-color);
             transition: var(--transition);
+            font-weight: 500;
         }
 
         .language-switch:hover {
-            background-color: #e9ecef;
-        }
-
-        .language-switch span {
-            margin-left: 0.5rem;
-            font-weight: 500;
-            font-size: 0.9rem;
+            background-color: var(--primary-color);
+            color: white;
+            transform: translateY(-2px);
         }
 
         .mobile-menu-btn {
             display: none;
+            width: 40px;
+            height: 40px;
             cursor: pointer;
-            font-size: 1.5rem;
+            background: none;
+            border: none;
+            position: relative;
         }
 
-        /* Hero Section */
+        .menu-icon {
+            width: 24px;
+            height: 2px;
+            background-color: var(--text-color);
+            position: relative;
+            transition: var(--transition);
+        }
+
+        .menu-icon::before,
+        .menu-icon::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-color: var(--text-color);
+            transition: var(--transition);
+        }
+
+        .menu-icon::before {
+            top: -8px;
+        }
+
+        .menu-icon::after {
+            bottom: -8px;
+        }
+
+        .mobile-menu-btn.active .menu-icon {
+            background-color: transparent;
+        }
+
+        .mobile-menu-btn.active .menu-icon::before {
+            top: 0;
+            transform: rotate(45deg);
+        }
+
+        .mobile-menu-btn.active .menu-icon::after {
+            bottom: 0;
+            transform: rotate(-45deg);
+        }
+
+        /* 滚动进度条 */
+        .scroll-progress {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 0%;
+            height: 3px;
+            background: linear-gradient(to right, var(--primary-color), var(--cat-color-1));
+            z-index: 1001;
+            transition: width 0.1s ease;
+        }
+
+        /* Hero Section 改进 */
         .hero {
-            height: 100vh;
-            background: linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(249,249,249,0.9) 100%);
+            min-height: 100vh;
             display: flex;
             align-items: center;
             position: relative;
             overflow: hidden;
+            background: linear-gradient(135deg, var(--light-color) 0%, var(--gray-color) 100%);
         }
 
-        .hero::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            right: -50%;
-            width: 100%;
-            height: 100%;
-            background: radial-gradient(circle, rgba(58,134,255,0.1) 0%, rgba(131,56,236,0.05) 100%);
-            border-radius: 50%;
-        }
-
-        .hero-content {
-            position: relative;
-            z-index: 1;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            width: 100%;
-        }
-
-        .hero-text {
-            max-width: 600px;
-        }
-
-        .hero-greeting {
-            font-size: 1.2rem;
-            color: var(--primary-color);
-            margin-bottom: 1rem;
-            opacity: 0;
-            animation: fadeInUp 1s ease forwards;
-            animation-delay: 0.5s;
-        }
-
-        .hero-name {
-            font-size: 3.5rem;
-            font-weight: 700;
-            margin-bottom: 1rem;
-            background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-            opacity: 0;
-            animation: fadeInUp 1s ease forwards;
-            animation-delay: 0.7s;
-        }
-
-        .hero-title {
-            font-size: 1.5rem;
-            color: var(--text-color);
-            margin-bottom: 1.5rem;
-            opacity: 0;
-            animation: fadeInUp 1s ease forwards;
-            animation-delay: 0.9s;
-        }
-
-        .hero-description {
-            font-size: 1.1rem;
-            color: #666;
-            margin-bottom: 2rem;
-            line-height: 1.8;
-            opacity: 0;
-            animation: fadeInUp 1s ease forwards;
-            animation-delay: 1.1s;
-        }
-
-        .hero-cta {
-            display: inline-block;
-            padding: 1rem 2rem;
-            background: linear-gradient(to right, var(--primary-color), var(--cat-color-1));
-            color: white;
-            border-radius: 50px;
-            font-weight: 500;
-            transition: var(--transition);
-            border: none;
-            cursor: pointer;
-            opacity: 0;
-            animation: fadeInUp 1s ease forwards;
-            animation-delay: 1.3s;
-            position: relative;
-            overflow: hidden;
-            z-index: 1;
-        }
-
-        .hero-cta::before {
-            content: '';
+        /* 动态背景 */
+        .hero-bg {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: linear-gradient(to right, var(--cat-color-1), var(--primary-color));
-            transition: var(--transition);
-            z-index: -1;
+            overflow: hidden;
+            z-index: 0;
+        }
+
+        .hero-bg .floating-shape {
+            position: absolute;
+            opacity: 0.1;
+            animation: float 20s infinite ease-in-out;
+        }
+
+        .floating-shape:nth-child(1) {
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, var(--primary-color) 0%, transparent 70%);
+            top: 10%;
+            left: 10%;
+            animation-delay: 0s;
+        }
+
+        .floating-shape:nth-child(2) {
+            width: 200px;
+            height: 200px;
+            background: radial-gradient(circle, var(--cat-color-1) 0%, transparent 70%);
+            top: 60%;
+            right: 20%;
+            animation-delay: 5s;
+        }
+
+        .floating-shape:nth-child(3) {
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, var(--accent-color) 0%, transparent 70%);
+            bottom: 10%;
+            left: 30%;
+            animation-delay: 10s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            25% { transform: translate(30px, -30px) scale(1.1); }
+            50% { transform: translate(-20px, 20px) scale(0.9); }
+            75% { transform: translate(20px, 30px) scale(1.05); }
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-text {
+            max-width: 700px;
+        }
+
+        .hero-greeting {
+            font-size: 1.1rem;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
             opacity: 0;
+            animation: fadeInUp 0.8s ease forwards;
+            animation-delay: 0.2s;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 2px;
         }
 
-        .hero-cta:hover::before {
-            opacity: 1;
+        .hero-name {
+            font-size: clamp(2.5rem, 5vw, 4rem);
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            opacity: 0;
+            animation: fadeInUp 0.8s ease forwards;
+            animation-delay: 0.4s;
+            line-height: 1.2;
         }
 
-        .hero-cta:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        .hero-title {
+            font-size: clamp(1.2rem, 2.5vw, 1.8rem);
+            color: var(--text-color);
+            margin-bottom: 1.5rem;
+            opacity: 0;
+            animation: fadeInUp 0.8s ease forwards;
+            animation-delay: 0.6s;
         }
 
+        .hero-description {
+            font-size: 1.1rem;
+            color: var(--text-light);
+            margin-bottom: 2.5rem;
+            line-height: 1.8;
+            opacity: 0;
+            animation: fadeInUp 0.8s ease forwards;
+            animation-delay: 0.8s;
+        }
+
+        /* 改进的CTA按钮 */
+        .hero-buttons {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-bottom: 3rem;
+            opacity: 0;
+            animation: fadeInUp 0.8s ease forwards;
+            animation-delay: 1s;
+        }
+
+        .btn {
+            padding: 0.875rem 2rem;
+            border-radius: 50px;
+            font-weight: 600;
+            transition: var(--transition);
+            cursor: pointer;
+            border: none;
+            font-size: 1rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-color), var(--cat-color-1));
+            color: white;
+            box-shadow: 0 4px 15px rgba(58, 134, 255, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(58, 134, 255, 0.4);
+        }
+
+        .btn-secondary {
+            background-color: transparent;
+            color: var(--primary-color);
+            border: 2px solid var(--primary-color);
+        }
+
+        .btn-secondary:hover {
+            background-color: var(--primary-color);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        /* 社交媒体链接改进 */
         .hero-social {
             display: flex;
-            margin-top: 2rem;
+            gap: 1rem;
             opacity: 0;
-            animation: fadeInUp 1s ease forwards;
-            animation-delay: 1.5s;
+            animation: fadeInUp 0.8s ease forwards;
+            animation-delay: 1.2s;
         }
 
-        .hero-social a {
-            width: 40px;
-            height: 40px;
+        .social-link {
+            width: 45px;
+            height: 45px;
             border-radius: 50%;
             background-color: var(--gray-color);
             display: flex;
             justify-content: center;
             align-items: center;
-            margin-right: 1rem;
-            color: var(--text-color);
             transition: var(--transition);
+            font-size: 1.2rem;
+            color: var(--text-color);
         }
 
-        .hero-social a:hover {
-            background: linear-gradient(to right, var(--primary-color), var(--cat-color-1));
+        .social-link:hover {
+            background: linear-gradient(135deg, var(--primary-color), var(--cat-color-1));
             color: white;
-            transform: translateY(-3px);
+            transform: translateY(-5px) rotate(360deg);
         }
 
-        /* About Section */
+        /* Section改进 */
         .section {
-            padding: 6rem 0;
+            padding: 5rem 0;
+            position: relative;
         }
 
         .section-title {
@@ -720,322 +575,409 @@
         }
 
         .section-title h2 {
-            font-size: 2.5rem;
+            font-size: clamp(2rem, 4vw, 3rem);
+            font-weight: 700;
+            margin-bottom: 1rem;
             position: relative;
             display: inline-block;
-            margin-bottom: 1rem;
-            z-index: 1;
+            padding-bottom: 1rem;
         }
 
         .section-title h2::after {
             content: '';
             position: absolute;
-            left: 0;
-            bottom: -10px;
-            width: 100%;
-            height: 3px;
-            background: linear-gradient(to right, var(--primary-color), var(--cat-color-1));
-        }
-        
-        .section-title h2::before {
-            content: '🐾';
-            position: absolute;
-            top: -1.5rem;
-            left: -2rem;
-            font-size: 1.5rem;
-        }
-
-        .section-title .background-text {
-            position: absolute;
-            top: -2rem;
+            bottom: 0;
             left: 50%;
             transform: translateX(-50%);
-            font-size: 5rem;
-            font-weight: 800;
-            color: rgba(0, 0, 0, 0.03);
-            z-index: -1;
-            white-space: nowrap;
+            width: 60px;
+            height: 4px;
+            background: linear-gradient(to right, var(--primary-color), var(--cat-color-1));
+            border-radius: 2px;
         }
 
+        .section-subtitle {
+            color: var(--text-light);
+            font-size: 1.1rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* About Section改进 */
         .about-content {
-            display: flex;
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 4rem;
             align-items: center;
-            justify-content: space-between;
-            flex-wrap: wrap;
         }
 
         .about-image {
-            flex: 1;
-            min-width: 300px;
             position: relative;
+        }
+
+        .about-image-wrapper {
+            position: relative;
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            box-shadow: var(--shadow-xl);
+            transition: var(--transition);
+        }
+
+        .about-image-wrapper:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 25px 50px rgba(0,0,0,0.15);
         }
 
         .about-image img {
             width: 100%;
-            max-width: 450px;
-            border-radius: 10px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            height: 100%;
+            object-fit: cover;
+            transition: var(--transition);
         }
 
-        .about-image::before {
-            content: '';
+        .about-image-wrapper:hover img {
+            transform: scale(1.05);
+        }
+
+        .about-decoration {
             position: absolute;
             top: -20px;
-            left: -20px;
-            width: 100%;
-            height: 100%;
-            border: 5px solid var(--primary-color);
-            border-radius: 10px;
-            z-index: -1;
+            right: -20px;
+            width: 100px;
+            height: 100px;
+            background: linear-gradient(135deg, var(--primary-color), var(--cat-color-1));
+            border-radius: 50%;
+            opacity: 0.1;
+            animation: pulse 3s infinite ease-in-out;
         }
 
-        .about-text {
-            flex: 1;
-            min-width: 300px;
-            padding: 0 2rem;
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 0.1; }
+            50% { transform: scale(1.2); opacity: 0.2; }
         }
 
         .about-text p {
             margin-bottom: 1.5rem;
             line-height: 1.8;
+            color: var(--text-light);
         }
 
-        .about-infos {
+        .about-info {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .info-item {
             display: flex;
-            flex-wrap: wrap;
-            margin-bottom: 2rem;
+            align-items: center;
+            gap: 0.75rem;
         }
 
-        .about-info-item {
-            min-width: 200px;
-            margin-bottom: 1rem;
-            margin-right: 1rem;
-        }
-
-        .about-info-item span {
-            font-weight: 600;
-        }
-
-        /* Education & Experience Section */
-        .timeline-section {
+        .info-icon {
+            width: 40px;
+            height: 40px;
             background-color: var(--gray-color);
-            padding: 6rem 0;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary-color);
+            flex-shrink: 0;
         }
 
-        .timeline-container {
+        /* Timeline改进 */
+        .timeline {
             position: relative;
-            max-width: 1000px;
+            max-width: 900px;
             margin: 0 auto;
         }
 
-        .timeline-container::after {
+        .timeline::before {
             content: '';
             position: absolute;
-            width: 2px;
-            background: linear-gradient(to bottom, var(--primary-color), var(--secondary-color));
-            top: 0;
-            bottom: 0;
             left: 50%;
-            margin-left: -1px;
+            transform: translateX(-50%);
+            width: 3px;
+            height: 100%;
+            background: linear-gradient(to bottom, var(--primary-color), var(--cat-color-1));
+            border-radius: 2px;
         }
 
         .timeline-item {
-            padding: 20px 40px;
             position: relative;
+            padding: 2rem 0;
             width: 50%;
-            background-color: inherit;
-            box-sizing: border-box;
         }
 
         .timeline-item:nth-child(odd) {
             left: 0;
+            padding-right: 3rem;
         }
 
         .timeline-item:nth-child(even) {
             left: 50%;
+            padding-left: 3rem;
         }
 
-        .timeline-item::after {
-            content: '';
+        .timeline-dot {
             position: absolute;
             width: 20px;
             height: 20px;
-            right: -10px;
-            background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+            background-color: var(--primary-color);
             border-radius: 50%;
-            top: 25px;
+            top: 2.5rem;
             z-index: 1;
+            box-shadow: 0 0 0 4px var(--light-color);
+            transition: var(--transition);
         }
 
-        .timeline-item:nth-child(even)::after {
+        .timeline-item:nth-child(odd) .timeline-dot {
+            right: -10px;
+        }
+
+        .timeline-item:nth-child(even) .timeline-dot {
             left: -10px;
         }
 
+        .timeline-item:hover .timeline-dot {
+            transform: scale(1.3);
+            background: linear-gradient(135deg, var(--primary-color), var(--cat-color-1));
+        }
+
         .timeline-content {
-            padding: 20px;
-            background-color: white;
-            position: relative;
-            border-radius: 10px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+            background-color: var(--light-color);
+            padding: 2rem;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-md);
             transition: var(--transition);
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+
+        [data-theme="dark"] .timeline-content {
+            background-color: var(--gray-color);
+            border-color: rgba(255,255,255,0.05);
         }
 
         .timeline-content:hover {
             transform: translateY(-5px);
-            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1);
+            box-shadow: var(--shadow-xl);
         }
 
         .timeline-date {
-            font-weight: 600;
             color: var(--primary-color);
-            margin-bottom: 10px;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
         .timeline-title {
-            font-size: 1.3rem;
-            margin-bottom: 10px;
-            color: var(--text-color);
+            font-size: 1.4rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
         }
 
         .timeline-subtitle {
-            font-size: 1rem;
-            color: #666;
-            margin-bottom: 15px;
+            color: var(--text-light);
+            margin-bottom: 1rem;
+            font-style: italic;
         }
 
-        .timeline-description {
-            margin-bottom: 10px;
-        }
-
-        /* Skills Section */
-        .skills {
-            background-color: var(--light-color);
-        }
-
-        .skills-container {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
+        /* Skills改进 */
+        .skills-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
             gap: 2rem;
         }
 
-        .skill-category {
-            flex: 1;
-            min-width: 250px;
-            max-width: 350px;
-            background-color: white;
+        .skill-card {
+            background-color: var(--light-color);
             padding: 2rem;
-            border-radius: 10px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-md);
             transition: var(--transition);
+            border: 1px solid rgba(0,0,0,0.05);
         }
 
-        .skill-category:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1);
+        [data-theme="dark"] .skill-card {
+            background-color: var(--gray-color);
+            border-color: rgba(255,255,255,0.05);
         }
 
-        .skill-category h3 {
-            font-size: 1.5rem;
+        .skill-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-xl);
+        }
+
+        .skill-card-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
             margin-bottom: 1.5rem;
-            color: var(--primary-color);
-            position: relative;
-            padding-bottom: 0.5rem;
         }
 
-        .skill-category h3::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 40px;
-            height: 3px;
-            background: linear-gradient(to right, var(--primary-color), var(--cat-color-1));
+        .skill-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, var(--primary-color), var(--cat-color-1));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
         }
-        
-        .skill-category h3::before {
-            content: '🐾';
-            position: absolute;
-            top: 0;
-            right: 0;
-            font-size: 1rem;
+
+        .skill-card h3 {
+            font-size: 1.3rem;
+            font-weight: 600;
         }
 
         .skill-item {
             margin-bottom: 1.5rem;
         }
 
-        .skill-item .skill-name {
+        .skill-header {
             display: flex;
             justify-content: space-between;
             margin-bottom: 0.5rem;
         }
 
-        .skill-item .skill-bar {
+        .skill-name {
+            font-weight: 500;
+        }
+
+        .skill-percentage {
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+
+        .skill-bar {
             height: 8px;
-            background-color: #e9ecef;
+            background-color: var(--gray-color);
             border-radius: 10px;
             overflow: hidden;
             position: relative;
         }
 
-        .skill-item .skill-progress {
+        .skill-progress {
             height: 100%;
             background: linear-gradient(to right, var(--primary-color), var(--cat-color-1));
             border-radius: 10px;
+            width: 0;
             transition: width 1.5s ease;
+            position: relative;
+            overflow: hidden;
         }
 
-        /* Projects Section */
-        .projects-container {
+        .skill-progress::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(
+                45deg,
+                transparent 25%,
+                rgba(255,255,255,0.2) 25%,
+                rgba(255,255,255,0.2) 50%,
+                transparent 50%,
+                transparent 75%,
+                rgba(255,255,255,0.2) 75%
+            );
+            background-size: 20px 20px;
+            animation: skillStripe 1s linear infinite;
+        }
+
+        @keyframes skillStripe {
+            0% { background-position: 0 0; }
+            100% { background-position: 20px 0; }
+        }
+
+        /* Projects改进 */
+        .projects-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
             gap: 2rem;
         }
 
         .project-card {
-            background-color: white;
-            border-radius: 10px;
+            background-color: var(--light-color);
+            border-radius: var(--border-radius);
             overflow: hidden;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+            box-shadow: var(--shadow-md);
             transition: var(--transition);
+            border: 1px solid rgba(0,0,0,0.05);
+            position: relative;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        [data-theme="dark"] .project-card {
+            background-color: var(--gray-color);
+            border-color: rgba(255,255,255,0.05);
         }
 
         .project-card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1);
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-xl);
         }
 
-        
+        .project-image {
+            position: relative;
+            padding-top: 60%;
+            overflow: hidden;
+            background: linear-gradient(135deg, var(--primary-color), var(--cat-color-1));
+        }
+
+        .project-image::after {
+            content: '🚀';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 3rem;
+            opacity: 0.3;
+        }
 
         .project-content {
-            padding: 1.5rem;
+            padding: 2rem;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
         }
 
-        .project-content h3 {
-            font-size: 1.3rem;
-            margin-bottom: 0.5rem;
-            color: var(--text-color);
-        }
-
-        .project-content p {
-            color: #666;
+        .project-title {
+            font-size: 1.5rem;
+            font-weight: 600;
             margin-bottom: 1rem;
-            min-height: 50px;
         }
 
-        .project-tags {
+        .project-description {
+            color: var(--text-light);
+            margin-bottom: 1.5rem;
+            flex: 1;
+            line-height: 1.6;
+        }
+
+        .project-tech {
             display: flex;
             flex-wrap: wrap;
             gap: 0.5rem;
-            margin-bottom: 1rem;
+            margin-bottom: 1.5rem;
         }
 
-        .project-tag {
+        .tech-tag {
             padding: 0.3rem 0.8rem;
             background-color: var(--gray-color);
-            border-radius: 50px;
-            font-size: 0.8rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--primary-color);
         }
 
         .project-links {
@@ -1044,70 +986,77 @@
         }
 
         .project-link {
-            padding: 0.5rem 1rem;
-            border-radius: 50px;
-            font-size: 0.9rem;
+            flex: 1;
+            padding: 0.75rem;
+            text-align: center;
+            border-radius: 8px;
             font-weight: 500;
             transition: var(--transition);
         }
 
-        .project-demo {
-            background: linear-gradient(to right, var(--primary-color), var(--cat-color-1));
+        .project-link-primary {
+            background: linear-gradient(135deg, var(--primary-color), var(--cat-color-1));
             color: white;
         }
 
-        .project-code {
+        .project-link-secondary {
             background-color: var(--gray-color);
             color: var(--text-color);
         }
 
         .project-link:hover {
-            transform: translateY(-3px);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
         }
 
-        /* Contact Section */
-        .contact {
-            background-color: var(--gray-color);
-        }
-
+        /* Contact改进 */
         .contact-container {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: space-between;
-            gap: 2rem;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            max-width: 1000px;
+            margin: 0 auto;
         }
 
         .contact-info {
-            flex: 1;
-            min-width: 300px;
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
         }
 
         .contact-item {
             display: flex;
-            align-items: flex-start;
-            margin-bottom: 2rem;
+            align-items: center;
+            gap: 1.5rem;
         }
 
         .contact-icon {
-            width: 50px;
-            height: 50px;
-            background: linear-gradient(to right, var(--primary-color), var(--cat-color-1));
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--primary-color), var(--cat-color-1));
             border-radius: 50%;
             display: flex;
-            justify-content: center;
             align-items: center;
+            justify-content: center;
             color: white;
-            margin-right: 1.5rem;
+            font-size: 1.5rem;
             flex-shrink: 0;
+            box-shadow: var(--shadow-md);
+            transition: var(--transition);
+        }
+
+        .contact-item:hover .contact-icon {
+            transform: scale(1.1) rotate(10deg);
         }
 
         .contact-details h4 {
+            font-size: 1.1rem;
             margin-bottom: 0.5rem;
-            color: var(--text-color);
         }
 
-        .contact-details p, .contact-details a {
-            color: #666;
+        .contact-details p,
+        .contact-details a {
+            color: var(--text-light);
             transition: var(--transition);
         }
 
@@ -1115,113 +1064,129 @@
             color: var(--primary-color);
         }
 
+        /* 表单改进 */
         .contact-form {
-            flex: 1;
-            min-width: 300px;
-            background-color: white;
-            padding: 2rem;
-            border-radius: 10px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+            background-color: var(--light-color);
+            padding: 2.5rem;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-lg);
+            border: 1px solid rgba(0,0,0,0.05);
         }
-        
-        .form-info {
-            margin-top: 1rem;
-            font-size: 0.8rem;
-            color: #666;
-            font-style: italic;
+
+        [data-theme="dark"] .contact-form {
+            background-color: var(--gray-color);
+            border-color: rgba(255,255,255,0.05);
         }
 
         .form-group {
             margin-bottom: 1.5rem;
         }
 
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--text-color);
+        }
+
         .form-control {
             width: 100%;
-            padding: 1rem;
-            border: 1px solid #e9ecef;
-            border-radius: 5px;
+            padding: 0.875rem 1.25rem;
+            border: 2px solid transparent;
+            background-color: var(--gray-color);
+            border-radius: 8px;
             font-family: inherit;
+            font-size: 1rem;
             transition: var(--transition);
+            color: var(--text-color);
         }
 
         .form-control:focus {
             outline: none;
             border-color: var(--primary-color);
+            background-color: var(--light-color);
+        }
+
+        [data-theme="dark"] .form-control:focus {
+            background-color: var(--darker-color);
         }
 
         textarea.form-control {
             resize: vertical;
-            min-height: 150px;
+            min-height: 120px;
         }
 
         .form-submit {
-            padding: 1rem 2rem;
-            background: linear-gradient(to right, var(--primary-color), var(--cat-color-1));
+            width: 100%;
+            padding: 1rem;
+            background: linear-gradient(135deg, var(--primary-color), var(--cat-color-1));
             color: white;
             border: none;
-            border-radius: 50px;
-            font-weight: 500;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 1rem;
             cursor: pointer;
             transition: var(--transition);
-            display: inline-block;
             position: relative;
             overflow: hidden;
-            z-index: 1;
-        }
-
-        .form-submit::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(to right, var(--cat-color-1), var(--primary-color));
-            transition: var(--transition);
-            z-index: -1;
-            opacity: 0;
-        }
-
-        .form-submit:hover::before {
-            opacity: 1;
         }
 
         .form-submit:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
         }
 
-        /* Footer */
+        .form-submit:active {
+            transform: translateY(0);
+        }
+
+        /* Footer改进 */
         footer {
             background-color: var(--dark-color);
             color: white;
-            padding: 3rem 0;
+            padding: 4rem 0 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        [data-theme="dark"] footer {
+            background-color: var(--darker-color);
+        }
+
+        .footer-decoration {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 100px;
+            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 100'%3E%3Cpath fill='%23ff7aa2' fill-opacity='0.1' d='M0,0 C480,100 960,100 1440,0 L1440,100 L0,100 Z'%3E%3C/path%3E%3C/svg%3E");
+            background-size: cover;
         }
 
         .footer-content {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: space-between;
-            gap: 2rem;
+            position: relative;
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr;
+            gap: 3rem;
+            margin-bottom: 3rem;
         }
 
-        .footer-logo {
+        .footer-brand h3 {
             font-size: 1.8rem;
-            font-weight: 700;
-            color: white;
             margin-bottom: 1rem;
-            font-family: 'Space Mono', monospace;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
         }
 
-        .footer-about {
-            flex: 2;
-            min-width: 300px;
+        .footer-brand .cat-icon {
+            animation: catWiggle 3s infinite ease-in-out;
         }
 
-        .footer-about p {
+        .footer-brand p {
             color: #aaa;
-            margin-bottom: 1.5rem;
             line-height: 1.8;
+            margin-bottom: 1.5rem;
         }
 
         .footer-social {
@@ -1233,32 +1198,26 @@
             width: 40px;
             height: 40px;
             border-radius: 50%;
-            background-color: rgba(255, 255, 255, 0.1);
+            background-color: rgba(255,255,255,0.1);
             display: flex;
-            justify-content: center;
             align-items: center;
-            color: white;
+            justify-content: center;
             transition: var(--transition);
         }
 
         .footer-social a:hover {
-            background: linear-gradient(to right, var(--primary-color), var(--cat-color-1));
+            background: linear-gradient(135deg, var(--primary-color), var(--cat-color-1));
             transform: translateY(-3px);
         }
 
-        .footer-links {
-            flex: 1;
-            min-width: 200px;
-        }
-
-        .footer-links h3 {
+        .footer-links h4 {
             margin-bottom: 1.5rem;
-            font-size: 1.3rem;
+            font-size: 1.2rem;
             position: relative;
             padding-bottom: 0.5rem;
         }
 
-        .footer-links h3::after {
+        .footer-links h4::after {
             content: '';
             position: absolute;
             bottom: 0;
@@ -1267,87 +1226,89 @@
             height: 2px;
             background: linear-gradient(to right, var(--primary-color), var(--cat-color-1));
         }
-        
-        .footer-links h3::before {
-            content: '🐾';
-            position: absolute;
-            top: 0;
-            right: 0;
-            font-size: 1rem;
+
+        .footer-links ul {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
         }
 
-        .footer-links ul li {
-            margin-bottom: 0.8rem;
-        }
-
-        .footer-links ul li a {
+        .footer-links a {
             color: #aaa;
             transition: var(--transition);
+            position: relative;
+            padding-left: 0;
         }
 
-        .footer-links ul li a:hover {
+        .footer-links a:hover {
             color: white;
-            padding-left: 5px;
+            padding-left: 10px;
         }
 
         .footer-bottom {
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-            padding-top: 2rem;
-            margin-top: 3rem;
             text-align: center;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(255,255,255,0.1);
             color: #aaa;
-        }
-
-        .footer-bottom p {
-            font-size: 0.9rem;
         }
 
         .visitor-counter {
             display: inline-block;
             margin-top: 1rem;
-            background-color: rgba(255, 255, 255, 0.1);
-            padding: 0.5rem 1rem;
+            padding: 0.5rem 1.5rem;
+            background-color: rgba(255,255,255,0.05);
             border-radius: 50px;
             font-size: 0.9rem;
-            position: relative;
-        }
-        
-        .visitor-counter::before {
-            content: '🐾';
-            position: absolute;
-            left: -1.2rem;
-            top: 0.4rem;
-            font-size: 1rem;
         }
 
         .counter-number {
             color: var(--cat-color-1);
             font-weight: 600;
+            font-family: 'JetBrains Mono', monospace;
         }
 
-        /* Game Container */
-        .game-container {
-            background-color: white;
-            padding: 2rem;
-            border-radius: 10px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
-            margin-top: 2rem;
-            text-align: center;
+        /* 返回顶部按钮 */
+        .back-to-top {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, var(--primary-color), var(--cat-color-1));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            opacity: 0;
+            visibility: hidden;
+            transition: var(--transition);
+            box-shadow: var(--shadow-lg);
+            z-index: 999;
         }
 
-        .game-iframe {
-            width: 100%;
-            height: 500px;
-            border: none;
-            border-radius: 10px;
-            overflow: hidden;
+        .back-to-top.visible {
+            opacity: 1;
+            visibility: visible;
         }
 
-        /* Animations */
+        .back-to-top:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-xl);
+        }
+
+        /* 动画优化 */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
         @keyframes fadeInUp {
             from {
                 opacity: 0;
-                transform: translateY(20px);
+                transform: translateY(30px);
             }
             to {
                 opacity: 1;
@@ -1355,51 +1316,87 @@
             }
         }
 
-        @keyframes borderPulse {
-            0% {
-                box-shadow: 0 0 0 0 rgba(58, 134, 255, 0.4);
+        @keyframes fadeInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-30px);
             }
-            70% {
-                box-shadow: 0 0 0 10px rgba(58, 134, 255, 0);
-            }
-            100% {
-                box-shadow: 0 0 0 0 rgba(58, 134, 255, 0);
+            to {
+                opacity: 1;
+                transform: translateX(0);
             }
         }
 
-        /* Responsive Design */
-        @media screen and (max-width: 992px) {
-            .hero-name {
-                font-size: 3rem;
+        @keyframes fadeInRight {
+            from {
+                opacity: 0;
+                transform: translateX(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        /* 滚动显示动画 */
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s ease;
+        }
+
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* 响应式设计改进 */
+        @media screen and (max-width: 1024px) {
+            .about-content {
+                grid-template-columns: 1fr;
+                text-align: center;
             }
 
-            .about-image::before {
-                display: none;
+            .about-image {
+                max-width: 400px;
+                margin: 0 auto;
             }
 
-            .timeline-container::after {
-                left: 31px;
+            .timeline::before {
+                left: 30px;
             }
 
             .timeline-item {
                 width: 100%;
                 padding-left: 70px;
-                padding-right: 25px;
+                padding-right: 20px;
             }
 
             .timeline-item:nth-child(even) {
                 left: 0;
             }
 
-            .timeline-item::after {
-                left: 21px;
-                right: auto;
+            .timeline-dot {
+                left: 20px !important;
+            }
+
+            .contact-container {
+                grid-template-columns: 1fr;
+            }
+
+            .footer-content {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+
+            .footer-social {
+                justify-content: center;
             }
         }
 
         @media screen and (max-width: 768px) {
-            .navbar {
-                padding: 1rem 0;
+            .container {
+                padding: 0 1.5rem;
             }
 
             .mobile-menu-btn {
@@ -1408,16 +1405,19 @@
 
             .nav-links {
                 position: fixed;
-                top: 80px;
+                top: 70px;
                 left: -100%;
-                width: 80%;
-                height: calc(100vh - 80px);
-                background-color: white;
+                width: 100%;
+                height: calc(100vh - 70px);
+                background-color: var(--light-color);
                 flex-direction: column;
-                align-items: flex-start;
                 padding: 2rem;
-                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
                 transition: var(--transition);
+                box-shadow: var(--shadow-xl);
+            }
+
+            [data-theme="dark"] .nav-links {
+                background-color: var(--dark-color);
             }
 
             .nav-links.active {
@@ -1425,43 +1425,56 @@
             }
 
             .nav-links li {
-                margin: 1.5rem 0;
                 width: 100%;
+                margin: 0;
+            }
+
+            .nav-links a {
+                display: block;
+                padding: 1rem 0;
+                font-size: 1.1rem;
+            }
+
+            .nav-controls {
+                margin-top: 2rem;
+                width: 100%;
+                justify-content: center;
             }
 
             .hero-name {
                 font-size: 2.5rem;
             }
 
-            .section-title h2 {
-                font-size: 2rem;
+            .projects-grid {
+                grid-template-columns: 1fr;
             }
 
-            .section-title .background-text {
-                font-size: 3.5rem;
+            .skills-grid {
+                grid-template-columns: 1fr;
             }
 
-            .about-image {
-                margin-bottom: 2rem;
-                text-align: center;
+            .about-info {
+                grid-template-columns: 1fr;
             }
 
-            .about-text {
-                padding: 0;
+            .hero-buttons {
+                flex-direction: column;
+                width: 100%;
             }
 
-            .logo-animation h1 {
-                font-size: 2.5rem;
-            }
-
-            .logo-animation .tagline {
-                font-size: 1.2rem;
+            .btn {
+                width: 100%;
+                justify-content: center;
             }
         }
 
-        @media screen and (max-width: 576px) {
-            .container {
-                padding: 0 1rem;
+        @media screen and (max-width: 480px) {
+            .section {
+                padding: 3rem 0;
+            }
+
+            .section-title h2 {
+                font-size: 2rem;
             }
 
             .hero-name {
@@ -1472,55 +1485,84 @@
                 font-size: 1.2rem;
             }
 
+            .timeline-content {
+                padding: 1.5rem;
+            }
+
+            .contact-form {
+                padding: 1.5rem;
+            }
+
+            .back-to-top {
+                bottom: 20px;
+                right: 20px;
+                width: 40px;
+                height: 40px;
+                font-size: 1.2rem;
+            }
+        }
+
+        /* 打印样式 */
+        @media print {
+            header,
+            .back-to-top,
+            .theme-toggle,
+            .language-switch,
+            .hero-bg,
+            footer {
+                display: none;
+            }
+
+            body {
+                color: black;
+                background: white;
+            }
+
             .section {
-                padding: 4rem 0;
+                page-break-inside: avoid;
             }
+        }
 
-            .section-title h2 {
-                font-size: 1.8rem;
+        /* 高对比度模式 */
+        @media (prefers-contrast: high) {
+            :root {
+                --primary-color: #0066ff;
+                --secondary-color: #ff0066;
+                --text-color: #000000;
+                --light-color: #ffffff;
             }
+        }
 
-            .section-title .background-text {
-                font-size: 3rem;
-                top: -1.5rem;
-            }
-
-            .logo-animation h1 {
-                font-size: 2rem;
-            }
-
-            .logo-animation .tagline {
-                font-size: 1rem;
+        /* 减少动画模式 */
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
             }
         }
     </style>
 </head>
 <body>
-    <!-- Entry Animation -->
-    <!--
-    <div class="entry-animation">
-        <div class="animation-container">
-            <div class="grid-overlay"></div>
-            <div class="glow-container"></div>
-            <div class="cyber-circle"></div>
-            <div class="cyber-circle"></div>
-            <div class="cyber-circle"></div>
-            <div class="code-rain"></div>
-            <div class="particles"></div>
-            <div class="tech-symbols"></div>
-            <div class="hologram-effect">
-                <div class="hologram-lines"></div>
+    <!-- 加载动画 -->
+    <div class="loader" id="loader">
+        <div class="loader-content">
+            <div class="loader-cat">🐱</div>
+            <div class="loader-text">正在加载中...</div>
+            <div class="loader-progress">
+                <div class="loader-progress-bar"></div>
             </div>
-            <div class="logo-animation">
-                <h1>LEO LI</h1>
-                <div class="tagline">Computer Scientist & Machine Learning Engineer</div>
-                <div class="loading-bar">
-                    <div class="loading-progress"></div>
-                </div>
+            <div class="loader-visitor-count">
+                <span data-translate="visitor-counter">访问量：</span>
+                <span id="loaderVisitorCount" class="counter-number">0</span>
             </div>
         </div>
     </div>
-    -->
+
+    <!-- 滚动进度条 -->
+    <div class="scroll-progress" id="scrollProgress"></div>
 
     <!-- Header -->
     <header id="header">
@@ -1530,10 +1572,8 @@
                     <span class="cat-icon">🐱</span>
                     <span data-translate="logo">LEO LI</span>
                 </a>
-                <div class="mobile-menu-btn">
-                    <i class="fas fa-bars"></i>
-                </div>
-                <ul class="nav-links">
+
+                <ul class="nav-links" id="navLinks">
                     <li><a href="#home" data-translate="nav-home">首页</a></li>
                     <li><a href="#about" data-translate="nav-about">关于</a></li>
                     <li><a href="#education" data-translate="nav-education">教育经历</a></li>
@@ -1541,29 +1581,60 @@
                     <li><a href="#skills" data-translate="nav-skills">技能</a></li>
                     <li><a href="#projects" data-translate="nav-projects">项目</a></li>
                     <li><a href="#contact" data-translate="nav-contact">联系</a></li>
-                    <li class="language-switch">
-                        <i class="fas fa-globe"></i>
-                        <span id="language-text" data-translate="language">English</span>
+                    <li class="nav-controls">
+                        <button class="theme-toggle" id="themeToggle" title="切换主题">
+                            <i class="fas fa-moon" id="themeIcon"></i>
+                        </button>
+                        <div class="language-switch" id="languageSwitch">
+                            <i class="fas fa-globe"></i>
+                            <span id="languageText" data-translate="language">English</span>
+                        </div>
                     </li>
                 </ul>
+
+                <button class="mobile-menu-btn" id="mobileMenuBtn">
+                    <span class="menu-icon"></span>
+                </button>
             </nav>
         </div>
     </header>
 
     <!-- Hero Section -->
     <section id="home" class="hero">
+        <div class="hero-bg">
+            <div class="floating-shape"></div>
+            <div class="floating-shape"></div>
+            <div class="floating-shape"></div>
+        </div>
         <div class="container">
             <div class="hero-content">
                 <div class="hero-text">
                     <div class="hero-greeting" data-translate="hero-greeting">你好，我是</div>
                     <h1 class="hero-name" data-translate="hero-name">李利鑫 (Leo Li)</h1>
                     <h2 class="hero-title" data-translate="hero-title">计算机科学家 & 机器学习工程师</h2>
-                    <p class="hero-description" data-translate="hero-description">我是一名专注于人工智能和机器学习的计算机科学家。在LLMs、NLP和分布式系统等领域拥有丰富经验，致力于创造智能、高效的技术解决方案。</p>
-                    <a href="#contact" class="hero-cta" data-translate="hero-cta">联系我</a>
+                    <p class="hero-description" data-translate="hero-description">
+                        我是一名专注于人工智能和机器学习的计算机科学家。在LLMs、NLP和分布式系统等领域拥有丰富经验，致力于创造智能、高效的技术解决方案。
+                    </p>
+                    <div class="hero-buttons">
+                        <a href="#contact" class="btn btn-primary">
+                            <span data-translate="hero-cta">联系我</span>
+                            <i class="fas fa-arrow-right"></i>
+                        </a>
+                        <a href="#projects" class="btn btn-secondary">
+                            <span data-translate="view-projects">查看项目</span>
+                            <i class="fas fa-folder-open"></i>
+                        </a>
+                    </div>
                     <div class="hero-social">
-                        <a href="https://www.linkedin.com/in/lixinleo/" target="_blank"><i class="fab fa-linkedin-in"></i></a>
-                        <a href="https://github.com/LixinLi15678" target="_blank"><i class="fab fa-github"></i></a>
-                        <a href="mailto:llx1012leo@gmail.com"><i class="fas fa-envelope"></i></a>
+                        <a href="https://www.linkedin.com/in/lixinleo/" target="_blank" class="social-link" title="LinkedIn">
+                            <i class="fab fa-linkedin-in"></i>
+                        </a>
+                        <a href="https://github.com/LixinLi15678" target="_blank" class="social-link" title="GitHub">
+                            <i class="fab fa-github"></i>
+                        </a>
+                        <a href="mailto:llx1012leo@gmail.com" class="social-link" title="Email">
+                            <i class="fas fa-envelope"></i>
+                        </a>
                     </div>
                 </div>
             </div>
@@ -1571,49 +1642,82 @@
     </section>
 
     <!-- About Section -->
-    <section id="about" class="section about">
+    <section id="about" class="section reveal">
         <div class="container">
             <div class="section-title">
-                <div class="background-text" data-translate="about-bg">ABOUT</div>
                 <h2 data-translate="about-title">关于我</h2>
+                <p class="section-subtitle" data-translate="about-subtitle">了解我的背景和专业技能</p>
             </div>
             <div class="about-content">
                 <div class="about-image">
-                    <img src="/imgs/profile.jpg">
+                    <div class="about-image-wrapper">
+                        <img src="./imgs/profile.jpg" alt="Leo Li" loading="lazy">
+                    </div>
+                    <div class="about-decoration"></div>
                 </div>
                 <div class="about-text">
-                    <p data-translate="about-text-1">我是一名充满激情的计算机科学家和机器学习工程师，目前在宾夕法尼亚大学攻读计算机与信息科学硕士学位。我在Franklin and Marshall College获得了计算机科学和数学双学士学位，并以优异的成绩毕业（GPA: 3.92/4.0，Summa Cum Laude）。</p>
-                    <p data-translate="about-text-2">我专注于人工智能和机器学习领域，尤其是大型语言模型（LLMs）和自然语言处理（NLP）。在学术和项目实践中，我开发了多种创新解决方案，如BNFormer（增强LLM结构化文本生成的准确性）和高精度聊天机器人系统。</p>
-                    <p data-translate="about-text-3">我喜欢解决复杂的技术挑战，通过创新思维和扎实的编程技能，将理论应用于实际问题。我期待与志同道合的专业人士合作，共同推动技术的边界。</p>
-                    <div class="about-infos">
-                        <div class="about-info-item">
-                            <p><span data-translate="about-name">姓名：</span> <span data-translate="your-name">李利鑫 (Leo Li)</span></p>
+                    <p data-translate="about-text-1">
+                        我是一名充满激情的计算机科学家和机器学习工程师，目前在宾夕法尼亚大学攻读计算机与信息科学硕士学位。我在Franklin and Marshall College获得了计算机科学和数学双学士学位，并以优异的成绩毕业（GPA: 3.92/4.0，Summa Cum Laude）。
+                    </p>
+                    <p data-translate="about-text-2">
+                        我专注于人工智能和机器学习领域，尤其是大型语言模型（LLMs）和自然语言处理（NLP）。在学术和项目实践中，我开发了多种创新解决方案，如BNFormer（增强LLM结构化文本生成的准确性）和高精度聊天机器人系统。
+                    </p>
+                    <p data-translate="about-text-3">
+                        我喜欢解决复杂的技术挑战，通过创新思维和扎实的编程技能，将理论应用于实际问题。我期待与志同道合的专业人士合作，共同推动技术的边界。
+                    </p>
+                    <div class="about-info">
+                        <div class="info-item">
+                            <div class="info-icon">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <div>
+                                <strong data-translate="about-name">姓名：</strong>
+                                <span data-translate="your-name">李利鑫 (Leo Li)</span>
+                            </div>
                         </div>
-                        <div class="about-info-item">
-                            <p><span data-translate="about-education">教育：</span> <span data-translate="your-education">宾夕法尼亚大学</span></p>
+                        <div class="info-item">
+                            <div class="info-icon">
+                                <i class="fas fa-graduation-cap"></i>
+                            </div>
+                            <div>
+                                <strong data-translate="about-education">教育：</strong>
+                                <span data-translate="your-education">宾夕法尼亚大学</span>
+                            </div>
                         </div>
-                        <div class="about-info-item">
-                            <p><span data-translate="about-email">邮箱：</span> llx1012leo@gmail.com</p>
+                        <div class="info-item">
+                            <div class="info-icon">
+                                <i class="fas fa-envelope"></i>
+                            </div>
+                            <div>
+                                <strong data-translate="about-email">邮箱：</strong>
+                                <span>llx1012leo@gmail.com</span>
+                            </div>
                         </div>
-                        <div class="about-info-item">
-                            <p><span data-translate="about-location">所在地：</span> <span data-translate="your-location">宾夕法尼亚州，美国</span></p>
+                        <div class="info-item">
+                            <div class="info-icon">
+                                <i class="fas fa-map-marker-alt"></i>
+                            </div>
+                            <div>
+                                <strong data-translate="about-location">所在地：</strong>
+                                <span data-translate="your-location">宾夕法尼亚州，美国</span>
+                            </div>
                         </div>
                     </div>
-
                 </div>
             </div>
         </div>
     </section>
 
     <!-- Education Section -->
-    <section id="education" class="section timeline-section">
+    <section id="education" class="section reveal" style="background-color: var(--gray-color);">
         <div class="container">
             <div class="section-title">
-                <div class="background-text" data-translate="education-bg">EDUCATION</div>
                 <h2 data-translate="education-title">教育经历</h2>
+                <p class="section-subtitle" data-translate="education-subtitle">我的学术背景和成就</p>
             </div>
-            <div class="timeline-container">
+            <div class="timeline">
                 <div class="timeline-item">
+                    <div class="timeline-dot"></div>
                     <div class="timeline-content">
                         <div class="timeline-date" data-translate="education1-date">2024年8月 - 2026年5月</div>
                         <h3 class="timeline-title" data-translate="education1-school">宾夕法尼亚大学</h3>
@@ -1622,11 +1726,14 @@
                     </div>
                 </div>
                 <div class="timeline-item">
+                    <div class="timeline-dot"></div>
                     <div class="timeline-content">
                         <div class="timeline-date" data-translate="education2-date">2020年8月 - 2024年5月</div>
                         <h3 class="timeline-title" data-translate="education2-school">富兰克林与马歇尔学院</h3>
                         <div class="timeline-subtitle" data-translate="education2-degree">计算机科学、数学学士</div>
-                        <p class="timeline-description" data-translate="education2-desc">GPA: 3.92/4.0，计算机科学系荣誉学位（5年唯一），最高荣誉毕业（Summa Cum Laude），全学期荣誉学生（GPA 3.7+），计算机科学系主任助教，DEI小组成员，Kershner奖学金获得者</p>
+                        <p class="timeline-description" data-translate="education2-desc">
+                            GPA: 3.92/4.0，计算机科学系荣誉学位（5年唯一），最高荣誉毕业（Summa Cum Laude），全学期荣誉学生（GPA 3.7+），计算机科学系主任助教，DEI小组成员，Kershner奖学金获得者
+                        </p>
                     </div>
                 </div>
             </div>
@@ -1634,43 +1741,55 @@
     </section>
 
     <!-- Experience Section -->
-    <section id="experience" class="section timeline-section">
+    <section id="experience" class="section reveal">
         <div class="container">
             <div class="section-title">
-                <div class="background-text" data-translate="experience-bg">EXPERIENCE</div>
                 <h2 data-translate="experience-title">工作经验</h2>
+                <p class="section-subtitle" data-translate="experience-subtitle">我的职业经历和项目实践</p>
             </div>
-            <div class="timeline-container">
+            <div class="timeline">
                 <div class="timeline-item">
+                    <div class="timeline-dot"></div>
                     <div class="timeline-content">
                         <div class="timeline-date" data-translate="experience1-date">2023年1月 - 2024年5月</div>
                         <h3 class="timeline-title" data-translate="experience1-company">富兰克林与马歇尔学院</h3>
                         <div class="timeline-subtitle" data-translate="experience1-role">研究助理</div>
-                        <p class="timeline-description" data-translate="experience1-desc">在Bradley McDanel教授的指导下发表了30页的论文。识别了LLMs在生成符合特定语法规则的文本方面的局限性，并提出了BNFormer来提高结构化文本生成的准确性。使用Python实现了基于BNF的语法机制，通过动态调整token概率确保语法正确性。相比基线LLM的40%准确率，实现了100%的语法合规性。</p>
+                        <p class="timeline-description" data-translate="experience1-desc">
+                            在Bradley McDanel教授的指导下发表了30页的论文。识别了LLMs在生成符合特定语法规则的文本方面的局限性，并提出了BNFormer来提高结构化文本生成的准确性。使用Python实现了基于BNF的语法机制，通过动态调整token概率确保语法正确性。相比基线LLM的40%准确率，实现了100%的语法合规性。
+                        </p>
                     </div>
                 </div>
                 <div class="timeline-item">
+                    <div class="timeline-dot"></div>
                     <div class="timeline-content">
                         <div class="timeline-date" data-translate="experience2-date">2022年9月 - 2022年12月</div>
                         <h3 class="timeline-title" data-translate="experience2-company">卡内基梅隆大学</h3>
                         <div class="timeline-subtitle" data-translate="experience2-role">研究助理</div>
-                        <p class="timeline-description" data-translate="experience2-desc">在Shlomo Ta'asan教授的指导下发表了研究论文。开发了基于NLP的聊天机器人，在用户查询分类和响应选择方面达到99%的准确率。使用Python、Pandas、Numpy和Spacy处理了372K问答数据集。设计了基于极性评分的检索机制，确保实时响应生成。</p>
+                        <p class="timeline-description" data-translate="experience2-desc">
+                            在Shlomo Ta'asan教授的指导下发表了研究论文。开发了基于NLP的聊天机器人，在用户查询分类和响应选择方面达到99%的准确率。使用Python、Pandas、Numpy和Spacy处理了372K问答数据集。设计了基于极性评分的检索机制，确保实时响应生成。
+                        </p>
                     </div>
                 </div>
                 <div class="timeline-item">
+                    <div class="timeline-dot"></div>
                     <div class="timeline-content">
                         <div class="timeline-date" data-translate="experience3-date">2023年9月 - 2024年1月</div>
                         <h3 class="timeline-title" data-translate="experience3-company">Winston Health</h3>
                         <div class="timeline-subtitle" data-translate="experience3-role">技术主管</div>
-                        <p class="timeline-description" data-translate="experience3-desc">领导团队开发Winston Health Android移动应用，该应用可在Google Play上使用，支持医生预约安排、保险集成和实时预订。在Android Studio（Java）开发中指导团队，协调每周会议和工作流分配。实现实时医生可用性可视化，允许患者预订时间段、查看预约历史和管理日程。通过HTTP（GET/POST）模块集成保险提供商API。</p>
+                        <p class="timeline-description" data-translate="experience3-desc">
+                            领导团队开发Winston Health Android移动应用，该应用可在Google Play上使用，支持医生预约安排、保险集成和实时预订。在Android Studio（Java）开发中指导团队，协调每周会议和工作流分配。实现实时医生可用性可视化，允许患者预订时间段、查看预约历史和管理日程。通过HTTP（GET/POST）模块集成保险提供商API。
+                        </p>
                     </div>
                 </div>
                 <div class="timeline-item">
+                    <div class="timeline-dot"></div>
                     <div class="timeline-content">
                         <div class="timeline-date" data-translate="experience4-date">2022年6月 - 2022年10月</div>
                         <h3 class="timeline-title" data-translate="experience4-company">富兰克林与马歇尔学院</h3>
                         <div class="timeline-subtitle" data-translate="experience4-role">研究助理</div>
-                        <p class="timeline-description" data-translate="experience4-desc">开发了预测建模框架，基于40,000个房产记录和75个预测因素估算房价。评估了随机森林、多元线性回归、Lasso回归、支持向量回归、XGBoost、LightGBM和CatBoost等模型，选择CatBoost作为性能最佳的模型。通过K折交叉验证对Python和R中的模型进行了微调，实现了951的均方根误差（RMSE），优于基线模型。</p>
+                        <p class="timeline-description" data-translate="experience4-desc">
+                            开发了预测建模框架，基于40,000个房产记录和75个预测因素估算房价。评估了随机森林、多元线性回归、Lasso回归、支持向量回归、XGBoost、LightGBM和CatBoost等模型，选择CatBoost作为性能最佳的模型。通过K折交叉验证对Python和R中的模型进行了微调，实现了951的均方根误差（RMSE），优于基线模型。
+                        </p>
                     </div>
                 </div>
             </div>
@@ -1678,138 +1797,153 @@
     </section>
 
     <!-- Skills Section -->
-    <section id="skills" class="section skills">
+    <section id="skills" class="section reveal" style="background-color: var(--gray-color);">
         <div class="container">
             <div class="section-title">
-                <div class="background-text" data-translate="skills-bg">SKILLS</div>
                 <h2 data-translate="skills-title">专业技能</h2>
+                <p class="section-subtitle" data-translate="skills-subtitle">我掌握的技术栈和专业能力</p>
             </div>
-            <div class="skills-container">
-                <div class="skill-category">
-                    <h3 data-translate="programming-title">编程语言</h3>
+            <div class="skills-grid">
+                <div class="skill-card">
+                    <div class="skill-card-header">
+                        <div class="skill-icon">
+                            <i class="fas fa-code"></i>
+                        </div>
+                        <h3 data-translate="programming-title">编程语言</h3>
+                    </div>
                     <div class="skill-item">
-                        <div class="skill-name">
-                            <span>Python</span>
-                            <span>95%</span>
+                        <div class="skill-header">
+                            <span class="skill-name">Python</span>
+                            <span class="skill-percentage">95%</span>
                         </div>
                         <div class="skill-bar">
-                            <div class="skill-progress" style="width: 95%;"></div>
+                            <div class="skill-progress" data-width="95"></div>
                         </div>
                     </div>
                     <div class="skill-item">
-                        <div class="skill-name">
-                            <span>C++</span>
-                            <span>85%</span>
+                        <div class="skill-header">
+                            <span class="skill-name">C++</span>
+                            <span class="skill-percentage">85%</span>
                         </div>
                         <div class="skill-bar">
-                            <div class="skill-progress" style="width: 85%;"></div>
+                            <div class="skill-progress" data-width="85"></div>
                         </div>
                     </div>
                     <div class="skill-item">
-                        <div class="skill-name">
-                            <span>Java</span>
-                            <span>80%</span>
+                        <div class="skill-header">
+                            <span class="skill-name">Java</span>
+                            <span class="skill-percentage">80%</span>
                         </div>
                         <div class="skill-bar">
-                            <div class="skill-progress" style="width: 80%;"></div>
+                            <div class="skill-progress" data-width="80"></div>
                         </div>
                     </div>
                     <div class="skill-item">
-                        <div class="skill-name">
-                            <span>R</span>
-                            <span>75%</span>
+                        <div class="skill-header">
+                            <span class="skill-name">R</span>
+                            <span class="skill-percentage">75%</span>
                         </div>
                         <div class="skill-bar">
-                            <div class="skill-progress" style="width: 75%;"></div>
+                            <div class="skill-progress" data-width="75"></div>
                         </div>
                     </div>
                     <div class="skill-item">
-                        <div class="skill-name">
-                            <span>HTML/CSS</span>
-                            <span>75%</span>
+                        <div class="skill-header">
+                            <span class="skill-name">HTML/CSS/JS</span>
+                            <span class="skill-percentage">75%</span>
                         </div>
                         <div class="skill-bar">
-                            <div class="skill-progress" style="width: 75%;"></div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="skill-category">
-                    <h3 data-translate="ml-title">机器学习</h3>
-                    <div class="skill-item">
-                        <div class="skill-name">
-                            <span>LLMs</span>
-                            <span>90%</span>
-                        </div>
-                        <div class="skill-bar">
-                            <div class="skill-progress" style="width: 90%;"></div>
-                        </div>
-                    </div>
-                    <div class="skill-item">
-                        <div class="skill-name">
-                            <span>NLP</span>
-                            <span>90%</span>
-                        </div>
-                        <div class="skill-bar">
-                            <div class="skill-progress" style="width: 90%;"></div>
-                        </div>
-                    </div>
-                    <div class="skill-item">
-                        <div class="skill-name">
-                            <span>RNN</span>
-                            <span>85%</span>
-                        </div>
-                        <div class="skill-bar">
-                            <div class="skill-progress" style="width: 85%;"></div>
-                        </div>
-                    </div>
-                    <div class="skill-item">
-                        <div class="skill-name">
-                            <span>CatBoost/XGBoost</span>
-                            <span>85%</span>
-                        </div>
-                        <div class="skill-bar">
-                            <div class="skill-progress" style="width: 85%;"></div>
+                            <div class="skill-progress" data-width="75"></div>
                         </div>
                     </div>
                 </div>
-                
-                <div class="skill-category">
-                    <h3 data-translate="tools-title">工具与框架</h3>
+
+                <div class="skill-card">
+                    <div class="skill-card-header">
+                        <div class="skill-icon">
+                            <i class="fas fa-brain"></i>
+                        </div>
+                        <h3 data-translate="ml-title">机器学习</h3>
+                    </div>
                     <div class="skill-item">
-                        <div class="skill-name">
-                            <span>Pandas/NumPy/SciPy</span>
-                            <span>95%</span>
+                        <div class="skill-header">
+                            <span class="skill-name">LLMs</span>
+                            <span class="skill-percentage">90%</span>
                         </div>
                         <div class="skill-bar">
-                            <div class="skill-progress" style="width: 95%;"></div>
+                            <div class="skill-progress" data-width="90"></div>
                         </div>
                     </div>
                     <div class="skill-item">
-                        <div class="skill-name">
-                            <span>Matplotlib/Tableau</span>
-                            <span>85%</span>
+                        <div class="skill-header">
+                            <span class="skill-name">NLP</span>
+                            <span class="skill-percentage">90%</span>
                         </div>
                         <div class="skill-bar">
-                            <div class="skill-progress" style="width: 85%;"></div>
+                            <div class="skill-progress" data-width="90"></div>
                         </div>
                     </div>
                     <div class="skill-item">
-                        <div class="skill-name">
-                            <span>VS Code/PyCharm/Jupyter</span>
-                            <span>90%</span>
+                        <div class="skill-header">
+                            <span class="skill-name">RNN</span>
+                            <span class="skill-percentage">85%</span>
                         </div>
                         <div class="skill-bar">
-                            <div class="skill-progress" style="width: 90%;"></div>
+                            <div class="skill-progress" data-width="85"></div>
                         </div>
                     </div>
                     <div class="skill-item">
-                        <div class="skill-name">
-                            <span>Git/GitHub</span>
-                            <span>85%</span>
+                        <div class="skill-header">
+                            <span class="skill-name">CatBoost/XGBoost</span>
+                            <span class="skill-percentage">85%</span>
                         </div>
                         <div class="skill-bar">
-                            <div class="skill-progress" style="width: 85%;"></div>
+                            <div class="skill-progress" data-width="85"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="skill-card">
+                    <div class="skill-card-header">
+                        <div class="skill-icon">
+                            <i class="fas fa-tools"></i>
+                        </div>
+                        <h3 data-translate="tools-title">工具与框架</h3>
+                    </div>
+                    <div class="skill-item">
+                        <div class="skill-header">
+                            <span class="skill-name">Pandas/NumPy/SciPy</span>
+                            <span class="skill-percentage">95%</span>
+                        </div>
+                        <div class="skill-bar">
+                            <div class="skill-progress" data-width="95"></div>
+                        </div>
+                    </div>
+                    <div class="skill-item">
+                        <div class="skill-header">
+                            <span class="skill-name">Matplotlib/Tableau</span>
+                            <span class="skill-percentage">85%</span>
+                        </div>
+                        <div class="skill-bar">
+                            <div class="skill-progress" data-width="85"></div>
+                        </div>
+                    </div>
+                    <div class="skill-item">
+                        <div class="skill-header">
+                            <span class="skill-name">VS Code/PyCharm/Jupyter</span>
+                            <span class="skill-percentage">90%</span>
+                        </div>
+                        <div class="skill-bar">
+                            <div class="skill-progress" data-width="90"></div>
+                        </div>
+                    </div>
+                    <div class="skill-item">
+                        <div class="skill-header">
+                            <span class="skill-name">Git/GitHub</span>
+                            <span class="skill-percentage">85%</span>
+                        </div>
+                        <div class="skill-bar">
+                            <div class="skill-progress" data-width="85"></div>
                         </div>
                     </div>
                 </div>
@@ -1818,76 +1952,120 @@
     </section>
 
     <!-- Projects Section -->
-    <section id="projects" class="section projects">
+    <section id="projects" class="section reveal">
         <div class="container">
             <div class="section-title">
-                <div class="background-text" data-translate="projects-bg">PROJECTS</div>
                 <h2 data-translate="projects-title">我的项目</h2>
+                <p class="section-subtitle" data-translate="projects-subtitle">展示我的技术实力和创新能力</p>
             </div>
-            <div class="projects-container">
+            <div class="projects-grid">
                 <div class="project-card">
-
+                    <div class="project-image"></div>
                     <div class="project-content">
-                        <h3 data-translate="project1-title">BNFormer</h3>
-                        <p data-translate="project1-desc">增强LLM结构化文本生成的创新解决方案，通过基于BNF的语法机制实现100%语法合规性。</p>
-                        <div class="project-tags">
-                            <span class="project-tag">Python</span>
-                            <span class="project-tag">LLMs</span>
-                            <span class="project-tag">Llama-2</span>
-                            <span class="project-tag">NLP</span>
+                        <h3 class="project-title" data-translate="project1-title">BNFormer</h3>
+                        <p class="project-description" data-translate="project1-desc">
+                            增强LLM结构化文本生成的创新解决方案，通过基于BNF的语法机制实现100%语法合规性。
+                        </p>
+                        <div class="project-tech">
+                            <span class="tech-tag">Python</span>
+                            <span class="tech-tag">LLMs</span>
+                            <span class="tech-tag">Llama-2</span>
+                            <span class="tech-tag">NLP</span>
                         </div>
                         <div class="project-links">
-                            <a href="" class="project-link project-code" data-translate="view-code">查看代码</a>
+                            <a href="#" class="project-link project-link-secondary">
+                                <i class="fas fa-code"></i>
+                                <span data-translate="view-code">查看代码</span>
+                            </a>
                         </div>
                     </div>
                 </div>
-                
-                <div class="project-card">
 
+                <div class="project-card">
+                    <div class="project-image"></div>
                     <div class="project-content">
-                        <h3 data-translate="project2-title">PennCloud</h3>
-                        <p data-translate="project2-desc">分布式云平台，提供类似Google Drive和Gmail的网络邮件和云存储服务，具有高可用性和容错能力。</p>
-                        <div class="project-tags">
-                            <span class="project-tag">C++</span>
-                            <span class="project-tag">HTML/CSS</span>
-                            <span class="project-tag">Bigtable</span>
-                            <span class="project-tag">AWS</span>
+                        <h3 class="project-title" data-translate="project2-title">PennCloud</h3>
+                        <p class="project-description" data-translate="project2-desc">
+                            分布式云平台，提供类似Google Drive和Gmail的网络邮件和云存储服务，具有高可用性和容错能力。
+                        </p>
+                        <div class="project-tech">
+                            <span class="tech-tag">C++</span>
+                            <span class="tech-tag">HTML/CSS</span>
+                            <span class="tech-tag">Bigtable</span>
+                            <span class="tech-tag">AWS</span>
                         </div>
                         <div class="project-links">
-                            <a href="" class="project-link project-code" data-translate="view-code">查看代码</a>
+                            <a href="#" class="project-link project-link-secondary">
+                                <i class="fas fa-code"></i>
+                                <span data-translate="view-code">查看代码</span>
+                            </a>
                         </div>
                     </div>
                 </div>
-                
-                <div class="project-card">
 
+                <div class="project-card">
+                    <div class="project-image"></div>
                     <div class="project-content">
-                        <h3 data-translate="project3-title">HTML 2048 游戏</h3>
-                        <p data-translate="project3-desc">基于HTML的2048游戏实现，具有现代化界面和流畅的游戏体验。</p>
-                        <div class="project-tags">
-                            <span class="project-tag">HTML</span>
-                            <span class="project-tag">CSS</span>
-                            <span class="project-tag">JavaScript</span>
+                        <h3 class="project-title" data-translate="project3-title">HTML 2048 游戏</h3>
+                        <p class="project-description" data-translate="project3-desc">
+                            基于HTML的2048游戏实现，具有现代化界面和流畅的游戏体验。
+                        </p>
+                        <div class="project-tech">
+                            <span class="tech-tag">HTML</span>
+                            <span class="tech-tag">CSS</span>
+                            <span class="tech-tag">JavaScript</span>
                         </div>
                         <div class="project-links">
-                            <a href="games/2048.html" class="project-link project-demo" data-translate="play-game">玩游戏</a>
+                            <a href="games/2048.html" class="project-link project-link-primary">
+                                <i class="fas fa-gamepad"></i>
+                                <span data-translate="play-game">玩游戏</span>
+                            </a>
                         </div>
                     </div>
                 </div>
-                
-                <div class="project-card">
 
+                <div class="project-card">
+                    <div class="project-image"></div>
                     <div class="project-content">
-                        <h3 data-translate="project4-title">旅行足迹应用</h3>
-                        <p data-translate="project4-desc">Web应用程序，用于跟踪和可视化个人旅行足迹，提供互动地图和旅行统计数据。</p>
-                        <div class="project-tags">
-                            <span class="project-tag">JavaScript</span>
-                            <span class="project-tag">React</span>
-                            <span class="project-tag">Maps API</span>
-                            <span class="project-tag">CSS</span>
+                        <h3 class="project-title" data-translate="project4-title">旅行足迹应用</h3>
+                        <p class="project-description" data-translate="project4-desc">
+                            Web应用程序，用于跟踪和可视化个人旅行足迹，提供互动地图和旅行统计数据。
+                        </p>
+                        <div class="project-tech">
+                            <span class="tech-tag">JavaScript</span>
+                            <span class="tech-tag">React</span>
+                            <span class="tech-tag">Maps API</span>
+                            <span class="tech-tag">CSS</span>
                         </div>
                         <div class="project-links">
-                            <a href="" class="project-link project-code" data-translate="view-code">查看代码</a>
+                            <a href="#" class="project-link project-link-secondary">
+                                <i class="fas fa-code"></i>
+                                <span data-translate="view-code">查看代码</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="project-card">
+                    <div class="project-image" style="background: linear-gradient(135deg, #1e3c72, #2a5298);">
+                        <span style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 3rem;">💳</span>
+                    </div>
+                    <div class="project-content">
+                        <h3 class="project-title" data-translate="project5-title">信用卡返现助手</h3>
+                        <p class="project-description" data-translate="project5-desc">
+                            智能信用卡返现计算器，帮助您在不同消费场景下选择最优返现信用卡，最大化您的返现收益。
+                        </p>
+                        <div class="project-tech">
+                            <span class="tech-tag">HTML</span>
+                            <span class="tech-tag">CSS</span>
+                            <span class="tech-tag">JavaScript</span>
+                            <span class="tech-tag">实时计算</span>
+                        </div>
+                        <div class="project-links">
+                            <a href="tools/credit-card-rewards.html" class="project-link project-link-primary">
+                                <i class="fas fa-calculator"></i>
+                                <span data-translate="use-tool">使用工具</span>
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -1896,11 +2074,11 @@
     </section>
 
     <!-- Contact Section -->
-    <section id="contact" class="section contact">
+    <section id="contact" class="section reveal" style="background-color: var(--gray-color);">
         <div class="container">
             <div class="section-title">
-                <div class="background-text" data-translate="contact-bg">CONTACT</div>
                 <h2 data-translate="contact-title">联系我</h2>
+                <p class="section-subtitle" data-translate="contact-subtitle">让我们一起创造些了不起的东西</p>
             </div>
             <div class="contact-container">
                 <div class="contact-info">
@@ -1944,20 +2122,26 @@
                 <div class="contact-form">
                     <form id="contactForm" action="https://formspree.io/f/myzeywek" method="POST">
                         <div class="form-group">
-                            <input type="text" name="name" class="form-control" placeholder="Your Name" data-translate="name-placeholder" required>
+                            <label for="name" class="form-label" data-translate="name-label">姓名</label>
+                            <input type="text" id="name" name="name" class="form-control" required>
                         </div>
                         <div class="form-group">
-                            <input type="email" name="_replyto" class="form-control" placeholder="Your Email" data-translate="email-placeholder" required>
+                            <label for="email" class="form-label" data-translate="email-label">邮箱</label>
+                            <input type="email" id="email" name="_replyto" class="form-control" required>
                         </div>
                         <div class="form-group">
-                            <input type="text" name="subject" class="form-control" placeholder="Subject" data-translate="subject-placeholder" required>
+                            <label for="subject" class="form-label" data-translate="subject-label">主题</label>
+                            <input type="text" id="subject" name="subject" class="form-control" required>
                         </div>
                         <div class="form-group">
-                            <textarea name="message" class="form-control" placeholder="Your Message" data-translate="message-placeholder" required></textarea>
+                            <label for="message" class="form-label" data-translate="message-label">留言</label>
+                            <textarea id="message" name="message" class="form-control" rows="5" required></textarea>
                         </div>
-                        <button type="submit" class="form-submit" data-translate="send-message">发送消息</button>
+                        <button type="submit" class="form-submit">
+                            <span data-translate="send-message">发送消息</span>
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
                     </form>
-                    <p class="form-info" data-translate="formspree-footnotes" >* 使用Formspree服务处理表单提交</p>
                 </div>
             </div>
         </div>
@@ -1965,244 +2149,135 @@
 
     <!-- Footer -->
     <footer>
+        <div class="footer-decoration"></div>
         <div class="container">
             <div class="footer-content">
-                <div class="footer-about">
-                    <div class="footer-logo">
+                <div class="footer-brand">
+                    <h3>
                         <span class="cat-icon">🐱</span>
                         <span data-translate="logo">LEO LI</span>
-                    </div>
-                    <p data-translate="footer-description">我是一名专注于人工智能和机器学习的计算机科学家，拥有在LLMs、NLP和分布式系统领域的丰富经验。</p>
+                    </h3>
+                    <p data-translate="footer-description">
+                        我是一名专注于人工智能和机器学习的计算机科学家，拥有在LLMs、NLP和分布式系统领域的丰富经验。
+                    </p>
                     <div class="footer-social">
-                        <a href="https://www.linkedin.com/in/lixinleo/" target="_blank"><i class="fab fa-linkedin-in"></i></a>
-                        <a href="https://github.com/LixinLi15678" target="_blank"><i class="fab fa-github"></i></a>
-                        <a href="mailto:llx1012leo@gmail.com"><i class="fas fa-envelope"></i></a>
+                        <a href="https://www.linkedin.com/in/lixinleo/" target="_blank" title="LinkedIn">
+                            <i class="fab fa-linkedin-in"></i>
+                        </a>
+                        <a href="https://github.com/LixinLi15678" target="_blank" title="GitHub">
+                            <i class="fab fa-github"></i>
+                        </a>
+                        <a href="mailto:llx1012leo@gmail.com" title="Email">
+                            <i class="fas fa-envelope"></i>
+                        </a>
                     </div>
                 </div>
                 <div class="footer-links">
-                    <h3 data-translate="quick-links">快速链接</h3>
+                    <h4 data-translate="quick-links">快速链接</h4>
                     <ul>
                         <li><a href="#home" data-translate="nav-home">首页</a></li>
                         <li><a href="#about" data-translate="nav-about">关于</a></li>
-                        <li><a href="#education" data-translate="nav-education">教育经历</a></li>
-                        <li><a href="#experience" data-translate="nav-experience">工作经验</a></li>
                         <li><a href="#skills" data-translate="nav-skills">技能</a></li>
                         <li><a href="#projects" data-translate="nav-projects">项目</a></li>
                         <li><a href="#contact" data-translate="nav-contact">联系</a></li>
                     </ul>
                 </div>
+                <div class="footer-links">
+                    <h4 data-translate="resources">资源</h4>
+                    <ul>
+                        <li><a href="#" data-translate="resume">简历下载</a></li>
+                        <li><a href="https://github.com/LixinLi15678" target="_blank">GitHub</a></li>
+                        <li><a href="https://www.linkedin.com/in/lixinleo/" target="_blank">LinkedIn</a></li>
+                    </ul>
+                </div>
             </div>
             <div class="footer-bottom">
-                <p data-translate="copyright">© 2025 李利鑫 (Lixin Li). 保留所有权利。</p>
+                <p data-translate="copyright">© 2025 李利鑫 (Leo Li). 保留所有权利。</p>
                 <div class="visitor-counter">
                     <span data-translate="visitor-counter">访问量：</span>
-                    <span id="visitorCount" class="counter-number">1</span>
+                    <span id="visitorCount" class="counter-number">1234</span>
                 </div>
             </div>
         </div>
     </footer>
 
+    <!-- 返回顶部按钮 -->
+    <div class="back-to-top" id="backToTop">
+        <i class="fas fa-arrow-up"></i>
+    </div>
+
     <script>
-        // Entry Animation
+        // 初始化
         document.addEventListener('DOMContentLoaded', function() {
-            // Create Code Rain
-            const codeRain = document.querySelector('.code-rain');
-            const columnCount = 20;
-            const possibleChars = '01アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン';
-            
-            for (let i = 0; i < columnCount; i++) {
-                const column = document.createElement('div');
-                column.classList.add('code-column');
-                
-                // Random position and speed
-                const posX = (i / columnCount) * 100;
-                column.style.left = `${posX}%`;
-                
-                // Random content
-                const columnLength = Math.floor(Math.random() * 20) + 10;
-                let columnContent = '';
-                for (let j = 0; j < columnLength; j++) {
-                    columnContent += possibleChars.charAt(Math.floor(Math.random() * possibleChars.length));
-                }
-                column.textContent = columnContent;
-                
-                // Animation
-                const duration = Math.random() * 10 + 5;
-                const delay = Math.random() * 5;
-                column.style.animation = `fadeInUp ${duration}s linear infinite ${delay}s`;
-                
-                codeRain.appendChild(column);
-            }
-            
-            // Create tech symbols
-            const techSymbols = document.querySelector('.tech-symbols');
-            const symbols = ['λ', '∫', '∑', '∞', 'π', '√', 'Ω', 'Δ', 'Θ', 'α', 'β', 'γ', '⨂', '⊕', '⊗', '≡', '≈', '≠', '∀', '∃'];
-            const catEmojis = ['🐱', '🐈', '😺', '😸', '😻', '🙀', '😽', '😹', '😿', '😾', '🐾'];
-            const symbolCount = 30;
-            const catSymbolCount = 15;
-            
-            for (let i = 0; i < symbolCount; i++) {
-                const symbol = document.createElement('div');
-                symbol.classList.add('symbol');
-                
-                // Random position
-                const posX = Math.random() * 100;
-                const posY = Math.random() * 100;
-                symbol.style.left = `${posX}%`;
-                symbol.style.top = `${posY}%`;
-                
-                // Random symbol and size
-                symbol.textContent = symbols[Math.floor(Math.random() * symbols.length)];
-                const size = Math.random() * 24 + 12;
-                symbol.style.fontSize = `${size}px`;
-                
-                // Animation delay
-                const delay = Math.random() * 5;
-                symbol.style.animationDelay = `${delay}s`;
-                
-                techSymbols.appendChild(symbol);
-            }
-            
-            // Add cat symbols
-            for (let i = 0; i < catSymbolCount; i++) {
-                const catSymbol = document.createElement('div');
-                catSymbol.classList.add('cat-symbol');
-                
-                // Random position
-                const posX = Math.random() * 100;
-                const posY = Math.random() * 100;
-                catSymbol.style.left = `${posX}%`;
-                catSymbol.style.top = `${posY}%`;
-                
-                // Random cat emoji
-                catSymbol.textContent = catEmojis[Math.floor(Math.random() * catEmojis.length)];
-                const size = Math.random() * 20 + 15;
-                catSymbol.style.fontSize = `${size}px`;
-                
-                // Animation delay
-                const delay = Math.random() * 5;
-                catSymbol.style.animationDelay = `${delay}s`;
-                
-                techSymbols.appendChild(catSymbol);
-            }
-            
-            // Create particles
-            const particles = document.querySelector('.particles');
-            const particleCount = 80;
-            
-            for (let i = 0; i < particleCount; i++) {
-                const particle = document.createElement('div');
-                particle.classList.add('particle');
-                
-                // Random position
-                const posX = Math.random() * 100;
-                const posY = Math.random() * 100;
-                particle.style.left = `${posX}%`;
-                particle.style.top = `${posY}%`;
-                
-                // Random size
-                const size = Math.random() * 4 + 1;
-                particle.style.width = `${size}px`;
-                particle.style.height = `${size}px`;
-                
-                // Random opacity
-                particle.style.opacity = Math.random() * 0.5 + 0.3;
-                
-                // Random movement
-                const endX = (Math.random() - 0.5) * 300;
-                const endY = (Math.random() - 0.5) * 300;
-                particle.style.setProperty('--end-x', `${endX}px`);
-                particle.style.setProperty('--end-y', `${endY}px`);
-                
-                // Animation duration
-                const duration = Math.random() * 5 + 3;
-                const delay = Math.random() * 3;
-                particle.style.animation = `particle-animation ${duration}s infinite ${delay}s`;
-                
-                particles.appendChild(particle);
-            }
-            
-            // Hide animation after loading
-            // setTimeout(() => {
-            //     const entryAnimation = document.querySelector('.entry-animation');
-            //     entryAnimation.classList.add('fade-out');
-            //     setTimeout(() => {
-            //         entryAnimation.style.display = 'none';
-            //     }, 1000);
-            // }, 5000);
+            // 立即更新访问计数
+            updateVisitorCount();
+
+            // 隐藏加载器
+            setTimeout(() => {
+                const loader = document.getElementById('loader');
+                loader.classList.add('hidden');
+            }, 2500);
+
+            // 初始化主题
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            updateThemeIcon(savedTheme);
+
+            // 初始化语言
+            const savedLanguage = localStorage.getItem('language') || 'zh';
+            currentLanguage = savedLanguage;
+            updateLanguage();
+
+            // 初始化滚动效果
+            initScrollEffects();
+
+            // 初始化技能动画
+            initSkillAnimations();
         });
 
-        // Navigation Menu Toggle
-        const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
-        const navLinks = document.querySelector('.nav-links');
+        // 移动菜单控制
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const navLinks = document.getElementById('navLinks');
 
         mobileMenuBtn.addEventListener('click', () => {
+            mobileMenuBtn.classList.toggle('active');
             navLinks.classList.toggle('active');
         });
 
-        // Smooth Scrolling for Navigation Links
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function (e) {
-                e.preventDefault();
+        // 点击导航链接时关闭移动菜单
+        document.querySelectorAll('.nav-links a').forEach(link => {
+            link.addEventListener('click', () => {
+                mobileMenuBtn.classList.remove('active');
                 navLinks.classList.remove('active');
-                document.querySelector(this.getAttribute('href')).scrollIntoView({
-                    behavior: 'smooth'
-                });
             });
         });
 
-        // Header Scroll Effect
-        const header = document.getElementById('header');
-        window.addEventListener('scroll', () => {
-            if (window.scrollY > 50) {
-                header.classList.add('scrolled');
+        // 主题切换
+        const themeToggle = document.getElementById('themeToggle');
+        const themeIcon = document.getElementById('themeIcon');
+
+        themeToggle.addEventListener('click', () => {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            updateThemeIcon(newTheme);
+        });
+
+        function updateThemeIcon(theme) {
+            if (theme === 'dark') {
+                themeIcon.classList.remove('fa-moon');
+                themeIcon.classList.add('fa-sun');
             } else {
-                header.classList.remove('scrolled');
+                themeIcon.classList.remove('fa-sun');
+                themeIcon.classList.add('fa-moon');
             }
-        });
+        }
 
-        // Skills Animation on Scroll
-        const skillBars = document.querySelectorAll('.skill-progress');
-        const observerOptions = {
-            threshold: 0.1
-        };
-
-        const observer = new IntersectionObserver((entries, observer) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    // We need to go up two levels from the .skill-progress to reach .skill-item
-                    // Then we can find the .skill-name and its child span
-                    const skillItem = entry.target.parentElement.parentElement;
-                    const percentValue = skillItem.querySelector('.skill-name span:last-child').textContent;
-                    
-                    // Set the width to animate the progress bar
-                    entry.target.style.width = percentValue;
-                    observer.unobserve(entry.target);
-                }
-            });
-        }, observerOptions);
-
-        skillBars.forEach(bar => {
-            // Initially set width to 0 for animation
-            bar.style.width = '0';
-            
-            // Observe the element
-            observer.observe(bar);
-        });
-
-        // Form Submission Handler
-        const contactForm = document.getElementById('contactForm');
-
-        // Visitor Counter
-        let visitorCount = localStorage.getItem('visitorCount') || 0;
-        visitorCount = parseInt(visitorCount) + 1;
-        localStorage.setItem('visitorCount', visitorCount);
-        document.getElementById('visitorCount').textContent = visitorCount;
-
-        // Language Switcher
-        const languageSwitch = document.querySelector('.language-switch');
-        const languageText = document.getElementById('language-text');
-        let currentLanguage = localStorage.getItem('language') || 'en';
+        // 语言切换
+        const languageSwitch = document.getElementById('languageSwitch');
+        let currentLanguage = 'zh';
 
         const translations = {
             zh: {
@@ -2215,14 +2290,14 @@
                 'nav-projects': '项目',
                 'nav-contact': '联系',
                 'language': 'English',
-                'entry-tagline': '计算机科学家 & 机器学习工程师',
                 'hero-greeting': '你好，我是',
                 'hero-name': '李利鑫 (Leo Li)',
                 'hero-title': '计算机科学家 & 机器学习工程师',
                 'hero-description': '我是一名专注于人工智能和机器学习的计算机科学家。在LLMs、NLP和分布式系统等领域拥有丰富经验，致力于创造智能、高效的技术解决方案。',
                 'hero-cta': '联系我',
-                'about-bg': '关于',
+                'view-projects': '查看项目',
                 'about-title': '关于我',
+                'about-subtitle': '了解我的背景和专业技能',
                 'about-text-1': '我是一名充满激情的计算机科学家和机器学习工程师，目前在宾夕法尼亚大学攻读计算机与信息科学硕士学位。我在Franklin and Marshall College获得了计算机科学和数学双学士学位，并以优异的成绩毕业（GPA: 3.92/4.0，Summa Cum Laude）。',
                 'about-text-2': '我专注于人工智能和机器学习领域，尤其是大型语言模型（LLMs）和自然语言处理（NLP）。在学术和项目实践中，我开发了多种创新解决方案，如BNFormer（增强LLM结构化文本生成的准确性）和高精度聊天机器人系统。',
                 'about-text-3': '我喜欢解决复杂的技术挑战，通过创新思维和扎实的编程技能，将理论应用于实际问题。我期待与志同道合的专业人士合作，共同推动技术的边界。',
@@ -2233,9 +2308,8 @@
                 'about-email': '邮箱：',
                 'about-location': '所在地：',
                 'your-location': '宾夕法尼亚州，美国',
-
-                'education-bg': '教育',
                 'education-title': '教育经历',
+                'education-subtitle': '我的学术背景和成就',
                 'education1-date': '2024年8月 - 2026年5月',
                 'education1-school': '宾夕法尼亚大学',
                 'education1-degree': '计算机与信息科学硕士',
@@ -2244,8 +2318,8 @@
                 'education2-school': '富兰克林与马歇尔学院',
                 'education2-degree': '计算机科学、数学学士',
                 'education2-desc': 'GPA: 3.92/4.0，计算机科学系荣誉学位（5年唯一），最高荣誉毕业（Summa Cum Laude），全学期荣誉学生（GPA 3.7+），计算机科学系主任助教，DEI小组成员，Kershner奖学金获得者',
-                'experience-bg': '经验',
                 'experience-title': '工作经验',
+                'experience-subtitle': '我的职业经历和项目实践',
                 'experience1-date': '2023年1月 - 2024年5月',
                 'experience1-company': '富兰克林与马歇尔学院',
                 'experience1-role': '研究助理',
@@ -2262,13 +2336,13 @@
                 'experience4-company': '富兰克林与马歇尔学院',
                 'experience4-role': '研究助理',
                 'experience4-desc': '开发了预测建模框架，基于40,000个房产记录和75个预测因素估算房价。评估了随机森林、多元线性回归、Lasso回归、支持向量回归、XGBoost、LightGBM和CatBoost等模型，选择CatBoost作为性能最佳的模型。通过K折交叉验证对Python和R中的模型进行了微调，实现了951的均方根误差（RMSE），优于基线模型。',
-                'skills-bg': '技能',
                 'skills-title': '专业技能',
+                'skills-subtitle': '我掌握的技术栈和专业能力',
                 'programming-title': '编程语言',
                 'ml-title': '机器学习',
                 'tools-title': '工具与框架',
-                'projects-bg': '项目',
                 'projects-title': '我的项目',
+                'projects-subtitle': '展示我的技术实力和创新能力',
                 'project1-title': 'BNFormer',
                 'project1-desc': '增强LLM结构化文本生成的创新解决方案，通过基于BNF的语法机制实现100%语法合规性。',
                 'project2-title': 'PennCloud',
@@ -2277,26 +2351,29 @@
                 'project3-desc': '基于HTML的2048游戏实现，具有现代化界面和流畅的游戏体验。',
                 'project4-title': '旅行足迹应用',
                 'project4-desc': 'Web应用程序，用于跟踪和可视化个人旅行足迹，提供互动地图和旅行统计数据。',
+                'project5-title': '信用卡返现助手',
+                'project5-desc': '智能信用卡返现计算器，帮助您在不同消费场景下选择最优返现信用卡，最大化您的返现收益。',
+                'use-tool': '使用工具',
                 'view-code': '查看代码',
                 'play-game': '玩游戏',
-                'contact-bg': '联系',
                 'contact-title': '联系我',
+                'contact-subtitle': '让我们一起创造些了不起的东西',
                 'email-title': '邮箱',
                 'phone-title': '电话',
                 'linkedin-title': 'LinkedIn',
                 'location-title': '位置',
                 'location-value': '宾夕法尼亚州，费城',
-                'name-placeholder': '您的姓名',
-                'email-placeholder': '您的邮箱',
-                'subject-placeholder': '主题',
-                'message-placeholder': '您的留言',
+                'name-label': '姓名',
+                'email-label': '邮箱',
+                'subject-label': '主题',
+                'message-label': '留言',
                 'send-message': '发送消息',
                 'footer-description': '我是一名专注于人工智能和机器学习的计算机科学家，拥有在LLMs、NLP和分布式系统领域的丰富经验。',
                 'quick-links': '快速链接',
+                'resources': '资源',
+                'resume': '简历下载',
                 'copyright': '© 2025 李利鑫 (Leo Li). 保留所有权利。',
-                'visitor-counter': '访问量：',
-                'formspree-footnotes': '* 使用Formspree服务处理表单提交',
-                'form-success': '感谢您的留言！我会尽快回复您。'
+                'visitor-counter': '访问量：'
             },
             en: {
                 'logo': 'LEO LI',
@@ -2308,14 +2385,14 @@
                 'nav-projects': 'Projects',
                 'nav-contact': 'Contact',
                 'language': '中文',
-                'entry-tagline': 'Computer Scientist & Machine Learning Engineer',
                 'hero-greeting': 'Hello, I am',
                 'hero-name': 'Lixin (Leo) Li',
                 'hero-title': 'Computer Scientist & Machine Learning Engineer',
                 'hero-description': 'I am a computer scientist focused on artificial intelligence and machine learning. With extensive experience in LLMs, NLP, and distributed systems, I am dedicated to creating intelligent and efficient technological solutions.',
                 'hero-cta': 'Contact Me',
-                'about-bg': 'ABOUT',
+                'view-projects': 'View Projects',
                 'about-title': 'About Me',
+                'about-subtitle': 'Learn about my background and expertise',
                 'about-text-1': 'I am a passionate computer scientist and machine learning engineer, currently pursuing a Master\'s degree in Computer and Information Science at the University of Pennsylvania. I earned a dual Bachelor\'s degree in Computer Science and Mathematics from Franklin and Marshall College, graduating with distinction (GPA: 3.92/4.0, Summa Cum Laude).',
                 'about-text-2': 'My focus is on artificial intelligence and machine learning, particularly Large Language Models (LLMs) and Natural Language Processing (NLP). In academic and project applications, I\'ve developed various innovative solutions such as BNFormer (enhancing accuracy of structured text generation by LLMs) and high-precision chatbot systems.',
                 'about-text-3': 'I enjoy solving complex technical challenges, applying theory to practical problems through innovative thinking and solid programming skills. I look forward to collaborating with like-minded professionals to push the boundaries of technology.',
@@ -2326,9 +2403,8 @@
                 'about-email': 'Email: ',
                 'about-location': 'Location: ',
                 'your-location': 'Pennsylvania, USA',
-
-                'education-bg': 'EDUCATION',
                 'education-title': 'Education',
+                'education-subtitle': 'My academic background and achievements',
                 'education1-date': 'August 2024 - May 2026',
                 'education1-school': 'University of Pennsylvania',
                 'education1-degree': 'M.S. Computer and Information Science',
@@ -2337,8 +2413,8 @@
                 'education2-school': 'Franklin and Marshall College',
                 'education2-degree': 'B.A. Computer Science, Mathematics',
                 'education2-desc': 'GPA: 3.92/4.0, Honor in Computer Science (only one in past 5 years), Summa Cum Laude, Honor list for all semesters (3.7+), Head TA in Computer Science, DEI group member, Kershner Awards',
-                'experience-bg': 'EXPERIENCE',
                 'experience-title': 'Work Experience',
+                'experience-subtitle': 'My professional journey and project experience',
                 'experience1-date': 'January 2023 - May 2024',
                 'experience1-company': 'Franklin and Marshall College',
                 'experience1-role': 'Research Assistant',
@@ -2355,13 +2431,13 @@
                 'experience4-company': 'Franklin and Marshall College',
                 'experience4-role': 'Research Assistant',
                 'experience4-desc': 'Developed a predictive modeling framework to estimate house prices based on 40,000 property records with 75 predictors. Evaluated Random Forest, Multiple Linear Regression, Lasso Regression, Support Vector Regression, XGBoost, LightGBM, and CatBoost models, selecting CatBoost for superior performance. Fine-tuned models using K-Fold Cross-Validation, achieving a Root Mean Square Error of 951, outperforming baseline models.',
-                'skills-bg': 'SKILLS',
                 'skills-title': 'Professional Skills',
+                'skills-subtitle': 'My technical stack and professional capabilities',
                 'programming-title': 'Programming Languages',
                 'ml-title': 'Machine Learning',
                 'tools-title': 'Tools & Frameworks',
-                'projects-bg': 'PROJECTS',
                 'projects-title': 'My Projects',
+                'projects-subtitle': 'Showcasing my technical expertise and innovation',
                 'project1-title': 'BNFormer',
                 'project1-desc': 'Innovative solution enhancing LLM structured text generation, achieving 100% grammar compliance through BNF-based mechanisms.',
                 'project2-title': 'PennCloud',
@@ -2370,26 +2446,29 @@
                 'project3-desc': 'HTML-based implementation of the 2048 game with a modern interface and smooth gameplay experience.',
                 'project4-title': 'Travel Footprint App',
                 'project4-desc': 'Web application for tracking and visualizing personal travel history, featuring interactive maps and travel statistics.',
+                'project5-title': 'Credit Card Rewards Helper',
+                'project5-desc': 'Smart credit card rewards calculator that helps you choose the best card for maximum cashback in different spending scenarios.',
+                'use-tool': 'Use Tool',
                 'view-code': 'View Code',
                 'play-game': 'Play Game',
-                'contact-bg': 'CONTACT',
                 'contact-title': 'Contact Me',
+                'contact-subtitle': 'Let\'s create something amazing together',
                 'email-title': 'Email',
                 'phone-title': 'Phone',
                 'linkedin-title': 'LinkedIn',
                 'location-title': 'Location',
                 'location-value': 'Philadelphia, PA',
-                'name-placeholder': 'Your Name',
-                'email-placeholder': 'Your Email',
-                'subject-placeholder': 'Subject',
-                'message-placeholder': 'Your Message',
+                'name-label': 'Name',
+                'email-label': 'Email',
+                'subject-label': 'Subject',
+                'message-label': 'Message',
                 'send-message': 'Send Message',
                 'footer-description': 'I am a computer scientist focused on artificial intelligence and machine learning, with extensive experience in LLMs, NLP, and distributed systems.',
                 'quick-links': 'Quick Links',
+                'resources': 'Resources',
+                'resume': 'Download Resume',
                 'copyright': '© 2025 Lixin (Leo) Li. All Rights Reserved.',
-                'visitor-counter': 'Visitors: ',
-                'formspree-footnotes': '* Form submission handled by Formspree',
-                'form-success': 'Thank you for your message! I will get back to you as soon as possible.'
+                'visitor-counter': 'Visitors: '
             }
         };
 
@@ -2397,23 +2476,208 @@
             document.querySelectorAll('[data-translate]').forEach(element => {
                 const key = element.getAttribute('data-translate');
                 if (translations[currentLanguage] && translations[currentLanguage][key]) {
-                    if (element.tagName === 'INPUT' || element.tagName === 'TEXTAREA') {
-                        element.placeholder = translations[currentLanguage][key];
-                    } else {
-                        element.textContent = translations[currentLanguage][key];
-                    }
+                    element.textContent = translations[currentLanguage][key];
                 }
             });
             document.documentElement.lang = currentLanguage;
         }
+
         languageSwitch.addEventListener('click', () => {
-            currentLanguage = (currentLanguage === 'zh') ? 'en' : 'zh';
+            currentLanguage = currentLanguage === 'zh' ? 'en' : 'zh';
             localStorage.setItem('language', currentLanguage);
             updateLanguage();
         });
 
-        // Initialize language
-        updateLanguage();
+        // 滚动效果
+        function initScrollEffects() {
+            // 滚动进度条
+            window.addEventListener('scroll', () => {
+                const scrollProgress = document.getElementById('scrollProgress');
+                const scrollHeight = document.documentElement.scrollHeight - window.innerHeight;
+                const scrollPercent = (window.scrollY / scrollHeight) * 100;
+                scrollProgress.style.width = scrollPercent + '%';
+
+                // Header 阴影
+                const header = document.getElementById('header');
+                if (window.scrollY > 50) {
+                    header.classList.add('scrolled');
+                } else {
+                    header.classList.remove('scrolled');
+                }
+
+                // 返回顶部按钮
+                const backToTop = document.getElementById('backToTop');
+                if (window.scrollY > 300) {
+                    backToTop.classList.add('visible');
+                } else {
+                    backToTop.classList.remove('visible');
+                }
+            });
+
+            // 滚动显示动画
+            const observerOptions = {
+                threshold: 0.1,
+                rootMargin: '0px 0px -50px 0px'
+            };
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('active');
+                    }
+                });
+            }, observerOptions);
+
+            document.querySelectorAll('.reveal').forEach(el => {
+                observer.observe(el);
+            });
+        }
+
+        // 技能动画
+        function initSkillAnimations() {
+            const skillObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const progressBar = entry.target;
+                        const width = progressBar.getAttribute('data-width');
+                        progressBar.style.width = width + '%';
+                        skillObserver.unobserve(progressBar);
+                    }
+                });
+            }, { threshold: 0.5 });
+
+            document.querySelectorAll('.skill-progress').forEach(bar => {
+                skillObserver.observe(bar);
+            });
+        }
+
+        // 导航高亮
+        function updateActiveNavLink() {
+            const sections = document.querySelectorAll('section[id]');
+            const navLinks = document.querySelectorAll('.nav-links a[href^="#"]');
+
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.offsetHeight;
+                if (window.scrollY >= sectionTop - 100) {
+                    current = section.getAttribute('id');
+                }
+            });
+
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href').slice(1) === current) {
+                    link.classList.add('active');
+                }
+            });
+        }
+
+        window.addEventListener('scroll', updateActiveNavLink);
+
+        // 平滑滚动
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    const headerOffset = 80;
+                    const elementPosition = target.offsetTop;
+                    const offsetPosition = elementPosition - headerOffset;
+
+                    window.scrollTo({
+                        top: offsetPosition,
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+
+        // 返回顶部
+        document.getElementById('backToTop').addEventListener('click', () => {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
+
+        // 访问计数器
+        function updateVisitorCount() {
+            let count = localStorage.getItem('visitorCount') || 0;
+            count = parseInt(count) + 1;
+            localStorage.setItem('visitorCount', count);
+
+            // 更新加载器中的计数
+            const loaderCounter = document.getElementById('loaderVisitorCount');
+            if (loaderCounter) {
+                loaderCounter.textContent = count.toLocaleString();
+            }
+
+            // 更新页脚的计数
+            const footerCounter = document.getElementById('visitorCount');
+            if (footerCounter) {
+                let currentCount = 0;
+                const increment = Math.ceil(count / 50);
+
+                const counterAnimation = setInterval(() => {
+                    currentCount += increment;
+                    if (currentCount >= count) {
+                        currentCount = count;
+                        clearInterval(counterAnimation);
+                    }
+                    footerCounter.textContent = currentCount.toLocaleString();
+                }, 30);
+            }
+        }
+
+        // 表单处理
+        const contactForm = document.getElementById('contactForm');
+        if (contactForm) {
+            contactForm.addEventListener('submit', function(e) {
+                const submitBtn = this.querySelector('.form-submit');
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 发送中...';
+                submitBtn.disabled = true;
+            });
+        }
+
+        // 优化图片加载
+        const images = document.querySelectorAll('img[loading="lazy"]');
+        if ('IntersectionObserver' in window) {
+            const imageObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const img = entry.target;
+                        img.src = img.dataset.src || img.src;
+                        img.classList.add('loaded');
+                        imageObserver.unobserve(img);
+                    }
+                });
+            });
+
+            images.forEach(img => imageObserver.observe(img));
+        }
+
+        // 键盘导航支持
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                mobileMenuBtn.classList.remove('active');
+                navLinks.classList.remove('active');
+            }
+        });
+
+        // 防止滚动时的性能问题
+        let ticking = false;
+        function requestTick() {
+            if (!ticking) {
+                requestAnimationFrame(updateActiveNavLink);
+                ticking = true;
+            }
+        }
+
+        window.addEventListener('scroll', () => {
+            requestTick();
+            ticking = false;
+        });
     </script>
 </body>
 </html>
