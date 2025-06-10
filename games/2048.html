@@ -463,6 +463,49 @@ body.theme-kawaii::before {
     100% {transform: scale(1) rotate(0deg);}
 }
 
+/* 长按删除效果 */
+.tile-deleting {
+    position: relative;
+    overflow: hidden;
+}
+
+.tile-deleting::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 0, 0, 0.3);
+    transform-origin: bottom;
+    transform: scaleY(0);
+    transition: transform 3s linear;
+}
+
+.tile-deleting.active::before {
+    transform: scaleY(1);
+}
+
+.delete-hint {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s;
+    z-index: 100;
+}
+
+.tile-deleting .delete-hint {
+    opacity: 1;
+}
+
 /* 其他样式 */
 .score-diff {
     position: absolute;
@@ -701,7 +744,7 @@ body.theme-kawaii::before {
 </div>
 
 <div class="footer">
-    2048游戏 - 多用户多主题版<br>
+    2048 - 专为凝凝制作<br>
     支持触摸、键盘和鼠标操作
 </div>
 
@@ -728,6 +771,12 @@ let touchStartX = 0;
 let touchStartY = 0;
 let touchEndX = 0;
 let touchEndY = 0;
+
+// 长按删除相关变量
+let longPressTimer = null;
+let longPressTarget = null;
+let isLongPressing = false;
+const LONG_PRESS_DURATION = 3000; // 3秒
 
 // 初始化
 window.onload = function() {
@@ -1245,15 +1294,106 @@ document.addEventListener('keydown', (e) => {
 // 触摸控制
 const gameContainer = document.getElementById('game-container');
 
+// 处理长按删除
+function startLongPress(target) {
+    if (!target.classList.contains('tile')) return;
+    
+    longPressTarget = target;
+    isLongPressing = true;
+    
+    // 添加删除中的样式
+    target.classList.add('tile-deleting', 'active');
+    
+    // 添加提示
+    const hint = document.createElement('div');
+    hint.className = 'delete-hint';
+    hint.textContent = '长按3秒删除';
+    target.appendChild(hint);
+    
+    longPressTimer = setTimeout(() => {
+        if (isLongPressing && longPressTarget) {
+            // 执行删除
+            const id = +longPressTarget.getAttribute('data-id');
+            let tileX = -1, tileY = -1, val = 0;
+            outer: for (let i = 0; i < GRID_SIZE; i++) {
+                for (let j = 0; j < GRID_SIZE; j++) {
+                    if (grid[i][j] !== 0 && grid[i][j].id === id) {
+                        tileX = i;
+                        tileY = j;
+                        val = grid[i][j].value;
+                        break outer;
+                    }
+                }
+            }
+            if (tileX >= 0 && tileY >= 0) {
+                let oldScore = score;
+                pushHistory();
+                grid[tileX][tileY] = 0;
+                score -= val;
+                updateUI();
+                showScoreChange(score - oldScore);
+                updateStats();
+                saveUserData();
+            }
+        }
+        cancelLongPress();
+    }, LONG_PRESS_DURATION);
+}
+
+function cancelLongPress() {
+    if (longPressTimer) {
+        clearTimeout(longPressTimer);
+        longPressTimer = null;
+    }
+    
+    if (longPressTarget) {
+        longPressTarget.classList.remove('tile-deleting', 'active');
+        const hint = longPressTarget.querySelector('.delete-hint');
+        if (hint) hint.remove();
+        longPressTarget = null;
+    }
+    
+    isLongPressing = false;
+}
+
 gameContainer.addEventListener('touchstart', (e) => {
-    touchStartX = e.touches[0].clientX;
-    touchStartY = e.touches[0].clientY;
+    const touch = e.touches[0];
+    touchStartX = touch.clientX;
+    touchStartY = touch.clientY;
+    
+    // 检查是否点击在方块上
+    const target = document.elementFromPoint(touch.clientX, touch.clientY);
+    if (target && target.classList.contains('tile')) {
+        startLongPress(target);
+    }
+}, { passive: false });
+
+gameContainer.addEventListener('touchmove', (e) => {
+    // 如果移动了，取消长按
+    if (isLongPressing) {
+        const touch = e.touches[0];
+        const moveDistance = Math.sqrt(
+            Math.pow(touch.clientX - touchStartX, 2) + 
+            Math.pow(touch.clientY - touchStartY, 2)
+        );
+        if (moveDistance > 10) {
+            cancelLongPress();
+        }
+    }
 }, { passive: true });
 
 gameContainer.addEventListener('touchend', (e) => {
-    touchEndX = e.changedTouches[0].clientX;
-    touchEndY = e.changedTouches[0].clientY;
-    handleSwipe();
+    cancelLongPress();
+    
+    if (!isLongPressing) {
+        touchEndX = e.changedTouches[0].clientX;
+        touchEndY = e.changedTouches[0].clientY;
+        handleSwipe();
+    }
+}, { passive: true });
+
+gameContainer.addEventListener('touchcancel', (e) => {
+    cancelLongPress();
 }, { passive: true });
 
 // 鼠标拖动控制
@@ -1297,10 +1437,11 @@ function handleSwipe() {
     }
 }
 
-// 点击删除方块
+// 点击删除方块 (仅电脑端Shift+点击)
 gameContainer.addEventListener('click', (e) => {
     if (e.target.classList.contains('tile')) {
-        if (e.shiftKey) {
+        // 只在非触摸设备上处理Shift+点击
+        if (e.shiftKey && !('ontouchstart' in window)) {
             const id = +e.target.getAttribute('data-id');
             let tileX = -1, tileY = -1, val=0;
             outer: for (let i=0;i<GRID_SIZE;i++){
