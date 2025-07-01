@@ -7,6 +7,49 @@
     <meta name="keywords" content="Leo Li, 李利鑫, Machine Learning, AI, Computer Science">
     <title>Lixin (Leo) Li | Personal Portfolio</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Firebase SDK -->
+    <script type="module">
+        // Firebase配置将在这里初始化
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getDatabase, ref, get, set, runTransaction } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
+        
+        // Firebase配置 
+        const firebaseConfig = {
+            apiKey: "AIzaSyDuYGhwFljH7PXEymYpbAjvCNXz5bIOw0w",
+            authDomain: "leoli-portfolio.firebaseapp.com",
+            databaseURL: "https://leoli-portfolio-default-rtdb.firebaseio.com",
+            projectId: "leoli-portfolio",
+            storageBucket: "leoli-portfolio.firebasestorage.app",
+            messagingSenderId: "841875554854",
+            appId: "1:841875554854:web:18abb1ace9b6b9bd6adce7"
+        };
+        
+        // 初始化Firebase
+        let app, database;
+        let firebaseInitialized = false;
+        
+        try {
+            app = initializeApp(firebaseConfig);
+            database = getDatabase(app);
+            firebaseInitialized = true;
+            console.log('Firebase initialized successfully');
+        } catch (error) {
+            console.error('Firebase initialization failed:', error);
+            firebaseInitialized = false;
+        }
+        
+        // 将Firebase函数暴露到全局
+        window.firebaseUtils = {
+            database,
+            ref,
+            get,
+            set,
+            runTransaction,
+            isInitialized: () => firebaseInitialized
+        };
+    </script>
+    
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap');
 
@@ -167,6 +210,38 @@
             color: var(--cat-color-1);
             font-weight: 600;
             font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* Firebase状态指示器 */
+        .firebase-status {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-family: 'JetBrains Mono', monospace;
+            opacity: 0.7;
+            transition: opacity 0.3s ease;
+        }
+
+        .firebase-status.connected {
+            background: rgba(46, 204, 113, 0.2);
+            color: #2ecc71;
+        }
+
+        .firebase-status.disconnected {
+            background: rgba(231, 76, 60, 0.2);
+            color: #e74c3c;
+        }
+
+        .firebase-status.fallback {
+            background: rgba(241, 196, 15, 0.2);
+            color: #f1c40f;
+        }
+
+        .firebase-status:hover {
+            opacity: 1;
         }
 
         @keyframes loadProgress {
@@ -1253,12 +1328,18 @@
         }
 
         .visitor-counter {
-            display: inline-block;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
             margin-top: 1rem;
             padding: 0.5rem 1.5rem;
             background-color: rgba(255,255,255,0.05);
             border-radius: 50px;
             font-size: 0.9rem;
+        }
+
+        .counter-icon {
+            color: var(--cat-color-1);
         }
 
         .counter-number {
@@ -1550,13 +1631,16 @@
     <div class="loader" id="loader">
         <div class="loader-content">
             <div class="loader-cat">🐱</div>
-            <div class="loader-text">正在加载中...</div>
+            <div class="loader-text">Loading...</div>
             <div class="loader-progress">
                 <div class="loader-progress-bar"></div>
             </div>
             <div class="loader-visitor-count">
                 <span data-translate="visitor-counter">访问量：</span>
                 <span id="loaderVisitorCount" class="counter-number">0</span>
+            </div>
+            <div class="firebase-status" id="loaderFirebaseStatus">
+                <i class="fas fa-database"></i> 连接中...
             </div>
         </div>
     </div>
@@ -2218,8 +2302,12 @@
             <div class="footer-bottom">
                 <p data-translate="copyright">© 2025 李利鑫 (Leo Li). 保留所有权利。</p>
                 <div class="visitor-counter">
+                    <i class="fas fa-eye counter-icon"></i>
                     <span data-translate="visitor-counter">访问量：</span>
                     <span id="visitorCount" class="counter-number">1234</span>
+                    <div class="firebase-status" id="firebaseStatus">
+                        <i class="fas fa-database"></i> Firebase
+                    </div>
                 </div>
             </div>
         </div>
@@ -2248,7 +2336,7 @@
             updateThemeIcon(savedTheme);
 
             // 初始化语言
-            const savedLanguage = localStorage.getItem('language') || 'zh';
+            const savedLanguage = localStorage.getItem('language') || 'en';
             currentLanguage = savedLanguage;
             updateLanguage();
 
@@ -2258,6 +2346,107 @@
             // 初始化技能动画
             initSkillAnimations();
         });
+
+        // Firebase访问计数器
+        async function updateVisitorCount() {
+            try {
+                // 检查Firebase是否可用
+                if (!window.firebaseUtils || !window.firebaseUtils.isInitialized()) {
+                    throw new Error('Firebase not initialized');
+                }
+
+                const { database, ref, runTransaction } = window.firebaseUtils;
+                const visitorRef = ref(database, 'visitors/count');
+
+                // 更新Firebase状态指示器
+                updateFirebaseStatus('connecting');
+
+                // 原子递增访问计数
+                const result = await runTransaction(visitorRef, (currentValue) => {
+                    return (currentValue || 0) + 1;
+                });
+
+                const newCount = result.snapshot.val();
+                console.log('Firebase visitor count updated:', newCount);
+                
+                // 动画显示计数
+                animateCount(newCount);
+                updateFirebaseStatus('connected');
+
+            } catch (error) {
+                console.warn('Firebase failed, using fallback:', error);
+                updateFirebaseStatus('fallback');
+                
+                // Fallback to CountAPI
+                try {
+                    const namespace = 'leoli-portfolio';
+                    const key = 'visits';
+                    
+                    const response = await fetch(`https://api.countapi.xyz/hit/${namespace}/${key}`);
+                    const data = await response.json();
+                    
+                    console.log('CountAPI visitor count:', data.value);
+                    animateCount(data.value);
+
+                } catch (countApiError) {
+                    console.error('CountAPI also failed, using local storage:', countApiError);
+                    updateFirebaseStatus('disconnected');
+                    
+                    // Final fallback to localStorage
+                    let count = parseInt(localStorage.getItem('visitorCount') || '0');
+                    count += 1;
+                    localStorage.setItem('visitorCount', count);
+                    animateCount(count);
+                }
+            }
+        }
+
+        // 动画显示计数
+        function animateCount(targetCount) {
+            const loaderCounter = document.getElementById('loaderVisitorCount');
+            const footerCounter = document.getElementById('visitorCount');
+            
+            // 立即更新加载器中的计数
+            if (loaderCounter) {
+                loaderCounter.textContent = targetCount.toLocaleString();
+            }
+
+            // 动画更新页脚中的计数
+            if (footerCounter) {
+                let currentCount = 0;
+                const increment = Math.ceil(targetCount / 50);
+                const timer = setInterval(() => {
+                    currentCount += increment;
+                    if (currentCount >= targetCount) {
+                        currentCount = targetCount;
+                        clearInterval(timer);
+                    }
+                    footerCounter.textContent = currentCount.toLocaleString();
+                }, 30);
+            }
+        }
+
+        // 更新Firebase状态指示器
+        function updateFirebaseStatus(status) {
+            const loaderStatus = document.getElementById('loaderFirebaseStatus');
+            const footerStatus = document.getElementById('firebaseStatus');
+
+            const statusConfig = {
+                connecting: { icon: 'fa-spinner fa-spin', text: '连接中...', class: 'connecting' },
+                connected: { icon: 'fa-database', text: 'Firebase', class: 'connected' },
+                fallback: { icon: 'fa-cloud', text: 'CountAPI', class: 'fallback' },
+                disconnected: { icon: 'fa-hdd', text: '本地存储', class: 'disconnected' }
+            };
+
+            const config = statusConfig[status] || statusConfig.disconnected;
+
+            [loaderStatus, footerStatus].forEach(element => {
+                if (element) {
+                    element.innerHTML = `<i class="fas ${config.icon}"></i> ${config.text}`;
+                    element.className = `firebase-status ${config.class}`;
+                }
+            });
+        }
 
         // 移动菜单控制
         const mobileMenuBtn = document.getElementById('mobileMenuBtn');
@@ -2301,7 +2490,7 @@
 
         // 语言切换
         const languageSwitch = document.getElementById('languageSwitch');
-        let currentLanguage = 'zh';
+        let currentLanguage = 'en';
 
         const translations = {
             zh: {
@@ -2377,9 +2566,12 @@
                 'project4-desc': 'Web应用程序，用于跟踪和可视化个人旅行足迹，提供互动地图和旅行统计数据。',
                 'project5-title': '信用卡返现助手',
                 'project5-desc': '智能信用卡返现计算器，帮助您在不同消费场景下选择最优返现信用卡，最大化您的返现收益。',
+                'project6-title': '键盘钢琴',
+                'project6-desc': '多功能在线钢琴，支持多种乐器、录音回放、音乐游戏模式，以及MP3旋律提取功能。',
                 'use-tool': '使用工具',
                 'view-code': '查看代码',
                 'play-game': '玩游戏',
+                'play-piano': '开始演奏',
                 'contact-title': '联系我',
                 'contact-subtitle': '让我们一起创造些了不起的东西',
                 'email-title': '邮箱',
@@ -2472,9 +2664,12 @@
                 'project4-desc': 'Web application for tracking and visualizing personal travel history, featuring interactive maps and travel statistics.',
                 'project5-title': 'Credit Card Rewards Helper',
                 'project5-desc': 'Smart credit card rewards calculator that helps you choose the best card for maximum cashback in different spending scenarios.',
+                'project6-title': 'Keyboard Piano',
+                'project6-desc': 'Multi-functional online piano supporting various instruments, recording playback, music game mode, and MP3 melody extraction.',
                 'use-tool': 'Use Tool',
                 'view-code': 'View Code',
                 'play-game': 'Play Game',
+                'play-piano': 'Start Playing',
                 'contact-title': 'Contact Me',
                 'contact-subtitle': 'Let\'s create something amazing together',
                 'email-title': 'Email',
@@ -2624,49 +2819,6 @@
                 behavior: 'smooth'
             });
         });
-
-        // 访问计数器
-        const namespace = 'leoli-portfolio';
-        const key = 'visits';
-        let requested = false; // guard
-
-        function updateVisitorCount() {
-          if (requested) return;      // 防止重复请求
-          requested = true;
-
-          fetch(`https://api.countapi.xyz/hit/${namespace}/${key}`)
-            .then(r => r.json())
-            .then(({ value }) => animateCount(value))
-            .catch(err => {
-              console.error('CountAPI error, fallback to local:', err);
-              updateVisitorCountLocal();
-            });
-        }
-
-        function animateCount(count) {
-          const loader = document.getElementById('loaderVisitorCount');
-          const footer = document.getElementById('visitorCount');
-          if (loader) loader.textContent = count.toLocaleString();
-
-          if (footer) {
-            let cur = 0, step = Math.ceil(count / 50);
-            const timer = setInterval(() => {
-              cur += step;
-              if (cur >= count) { cur = count; clearInterval(timer); }
-              footer.textContent = cur.toLocaleString();
-            }, 30);
-          }
-        }
-
-        function updateVisitorCountLocal() {
-          let c = +localStorage.getItem('visitorCount') || 0;
-          c += 1;
-          localStorage.setItem('visitorCount', c);
-          document.getElementById('loaderVisitorCount').textContent = c.toLocaleString();
-          document.getElementById('visitorCount').textContent = c.toLocaleString();
-        }
-
-        document.addEventListener('DOMContentLoaded', updateVisitorCount);
 
         // 表单处理
         const contactForm = document.getElementById('contactForm');
