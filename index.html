@@ -358,6 +358,7 @@
             align-items: center;
             justify-content: center;
             transition: var(--transition);
+            color: var(--text-color);
         }
 
         .theme-toggle:hover {
@@ -375,6 +376,7 @@
             background-color: var(--gray-color);
             transition: var(--transition);
             font-weight: 500;
+            color: var(--text-color);
         }
 
         .language-switch:hover {
@@ -1006,17 +1008,21 @@
             position: relative;
             padding-top: 60%;
             overflow: hidden;
-            background: linear-gradient(135deg, var(--primary-color), var(--cat-color-1));
+            border-radius: var(--border-radius) var(--border-radius) 0 0;
+            transition: var(--transition);
         }
 
-        .project-image::after {
-            content: '🚀';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 3rem;
-            opacity: 0.3;
+        .project-image:hover {
+            transform: scale(1.05);
+        }
+
+        .project-image span {
+            transition: var(--transition);
+            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3));
+        }
+
+        .project-card:hover .project-image span {
+            transform: translate(-50%, -50%) scale(1.1) rotate(5deg);
         }
 
         .project-content {
@@ -1631,7 +1637,7 @@
     <div class="loader" id="loader">
         <div class="loader-content">
             <div class="loader-cat">🐱</div>
-            <div class="loader-text">Loading...</div>
+            <div class="loader-text">正在加载中...</div>
             <div class="loader-progress">
                 <div class="loader-progress-bar"></div>
             </div>
@@ -2044,7 +2050,9 @@
             </div>
             <div class="projects-grid">
                 <div class="project-card">
-                    <div class="project-image"></div>
+                    <div class="project-image" style="background: linear-gradient(135deg, #4ecdc4, #44a08d);">
+                        <span style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 3rem;">🤖</span>
+                    </div>
                     <div class="project-content">
                         <h3 class="project-title" data-translate="project1-title">BNFormer</h3>
                         <p class="project-description" data-translate="project1-desc">
@@ -2066,7 +2074,9 @@
                 </div>
 
                 <div class="project-card">
-                    <div class="project-image"></div>
+                    <div class="project-image" style="background: linear-gradient(135deg, #74b9ff, #0984e3);">
+                        <span style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 3rem;">☁️</span>
+                    </div>
                     <div class="project-content">
                         <h3 class="project-title" data-translate="project2-title">PennCloud</h3>
                         <p class="project-description" data-translate="project2-desc">
@@ -2088,7 +2098,9 @@
                 </div>
 
                 <div class="project-card">
-                    <div class="project-image"></div>
+                    <div class="project-image" style="background: linear-gradient(135deg, #fd79a8, #fdcb6e);">
+                        <span style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 3rem;">🎮</span>
+                    </div>
                     <div class="project-content">
                         <h3 class="project-title" data-translate="project3-title">HTML 2048 游戏</h3>
                         <p class="project-description" data-translate="project3-desc">
@@ -2109,7 +2121,9 @@
                 </div>
 
                 <div class="project-card">
-                    <div class="project-image"></div>
+                    <div class="project-image" style="background: linear-gradient(135deg, #00b894, #00cec9);">
+                        <span style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 3rem;">🗺️</span>
+                    </div>
                     <div class="project-content">
                         <h3 class="project-title" data-translate="project4-title">旅行足迹应用</h3>
                         <p class="project-description" data-translate="project4-desc">
@@ -2131,7 +2145,7 @@
                 </div>
 
                 <div class="project-card">
-                    <div class="project-image" style="background: linear-gradient(135deg, #667eea, #764ba2);">
+                    <div class="project-image" style="background: linear-gradient(135deg, #a29bfe, #6c5ce7);">
                         <span style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 3rem;">🎹</span>
                     </div>
                     <div class="project-content">
@@ -2155,7 +2169,7 @@
                 </div>
 
                 <div class="project-card">
-                    <div class="project-image" style="background: linear-gradient(135deg, #1e3c72, #2a5298);">
+                    <div class="project-image" style="background: linear-gradient(135deg, #fdcb6e, #e17055);">
                         <span style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 3rem;">💳</span>
                     </div>
                     <div class="project-content">
