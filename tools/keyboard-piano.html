@@ -1,0 +1,2123 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>键盘钢琴 - Leo Li</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js" onerror="loadToneFallback()"></script>
+    <script>
+        // Fallback for Tone.js loading
+        function loadToneFallback() {
+            console.warn('Primary Tone.js CDN failed, trying fallback...');
+            const script = document.createElement('script');
+            script.src = 'https://unpkg.com/tone@14.8.49/build/Tone.js';
+            script.onerror = () => {
+                console.error('Tone.js failed to load from all sources');
+                if (typeof showNotification === 'function') {
+                    showNotification('音频库加载失败，将使用备用音频系统', 'warning');
+                }
+                window.Tone = null; // Signal that Tone.js is not available
+            };
+            document.head.appendChild(script);
+        }
+
+        // Early notification function (in case main one isn't loaded yet)
+        function showNotification(message, type = 'success') {
+            console.log(`Notification [${type}]: ${message}`);
+            
+            // Try to show notification if element exists
+            const notification = document.getElementById('notification');
+            if (notification) {
+                notification.textContent = message;
+                notification.className = `notification ${type}`;
+                notification.classList.add('show');
+                
+                setTimeout(() => {
+                    notification.classList.remove('show');
+                }, 3000);
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        :root {
+            --primary-color: #667eea;
+            --secondary-color: #764ba2;
+            --accent-color: #f093fb;
+            --success-color: #4ecdc4;
+            --warning-color: #ffe66d;
+            --danger-color: #ff6b6b;
+            --dark-color: #2c3e50;
+            --light-color: #ffffff;
+            --gray-color: #f8f9fa;
+            --text-color: #333333;
+            --text-light: #666666;
+            --shadow-sm: 0 2px 4px rgba(0,0,0,0.1);
+            --shadow-md: 0 4px 6px rgba(0,0,0,0.1);
+            --shadow-lg: 0 10px 15px rgba(0,0,0,0.1);
+            --transition: all 0.3s ease;
+            --border-radius: 12px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: var(--text-color);
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="rgba(255,255,255,0.05)"/><circle cx="75" cy="75" r="1" fill="rgba(255,255,255,0.05)"/><circle cx="50" cy="50" r="0.5" fill="rgba(255,255,255,0.03)"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        /* Header */
+        .header {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .back-link {
+            color: white;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: rgba(255,255,255,0.2);
+            border-radius: 25px;
+            transition: var(--transition);
+        }
+
+        .back-link:hover {
+            background: rgba(255,255,255,0.3);
+            transform: translateX(-5px);
+        }
+
+        .header h1 {
+            color: white;
+            font-size: 1.8rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .header-icon {
+            font-size: 2rem;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+
+        /* Container */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Control Panel */
+        .control-panel {
+            background: rgba(255,255,255,0.95);
+            border-radius: var(--border-radius);
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow-lg);
+            backdrop-filter: blur(10px);
+        }
+
+        .controls-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .control-group label {
+            font-weight: 500;
+            color: var(--text-color);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .control-group select,
+        .control-group input[type="range"] {
+            padding: 0.5rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+
+        .control-group select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        .range-container {
+            position: relative;
+        }
+
+        .range-value {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 0.9rem;
+            color: var(--text-light);
+            pointer-events: none;
+        }
+
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 25px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+        }
+
+        .btn-secondary {
+            background: #f8f9fa;
+            color: var(--text-color);
+            border: 2px solid #e0e0e0;
+        }
+
+        .btn-success {
+            background: var(--success-color);
+            color: white;
+        }
+
+        .btn-danger {
+            background: var(--danger-color);
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* File Upload */
+        .file-upload {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+        }
+
+        .file-upload input[type="file"] {
+            position: absolute;
+            left: -9999px;
+        }
+
+        /* Piano Container */
+        .piano-container {
+            background: rgba(255,255,255,0.95);
+            border-radius: var(--border-radius);
+            padding: 2rem;
+            box-shadow: var(--shadow-lg);
+            backdrop-filter: blur(10px);
+            margin-bottom: 2rem;
+        }
+
+        .piano-wrapper {
+            position: relative;
+            overflow-x: auto;
+            overflow-y: hidden;
+            padding: 1rem 0;
+        }
+
+        .piano {
+            display: flex;
+            min-width: 800px;
+            height: 200px;
+            position: relative;
+            user-select: none;
+            margin: 0 auto;
+        }
+
+        .piano {
+            display: flex;
+            min-width: 800px;
+            height: 200px;
+            position: relative;
+            user-select: none;
+            margin: 0 auto;
+            background: transparent;
+        }
+
+        .key {
+            position: absolute;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.9rem;
+            border: none;
+            outline: none;
+        }
+
+        .white-key {
+            width: 60px;
+            height: 200px;
+            background: linear-gradient(to bottom, #ffffff, #f8f9fa);
+            border: 2px solid #e0e0e0;
+            border-radius: 0 0 8px 8px;
+            color: var(--text-light);
+            padding-bottom: 1rem;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            z-index: 1;
+        }
+
+        .black-key {
+            width: 38px;
+            height: 120px;
+            background: linear-gradient(to bottom, #2c3e50, #1a252f);
+            border: 2px solid #1a252f;
+            border-radius: 0 0 6px 6px;
+            color: white;
+            padding-bottom: 0.5rem;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+            z-index: 2;
+        }
+
+        .key:hover {
+            transform: translateY(2px);
+            cursor: pointer;
+        }
+
+        .key.active {
+            transform: translateY(4px);
+            box-shadow: inset 0 2px 10px rgba(0,0,0,0.2);
+        }
+
+        .white-key.active {
+            background: linear-gradient(to bottom, #667eea, #764ba2);
+            color: white;
+        }
+
+        .black-key.active {
+            background: linear-gradient(to bottom, #667eea, #764ba2);
+        }
+
+        /* Key Labels */
+        .key-label {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.8rem;
+            opacity: 0.7;
+            pointer-events: none;
+            font-weight: 600;
+        }
+
+        /* Game Mode */
+        .game-container {
+            background: rgba(255,255,255,0.95);
+            border-radius: var(--border-radius);
+            padding: 2rem;
+            box-shadow: var(--shadow-lg);
+            backdrop-filter: blur(10px);
+            margin-bottom: 2rem;
+            display: none;
+        }
+
+        .game-container.active {
+            display: block;
+        }
+
+        .game-area {
+            position: relative;
+            height: 400px;
+            background: linear-gradient(to bottom, #f8f9fa, #e9ecef);
+            border-radius: 8px;
+            overflow: hidden;
+            margin-bottom: 1rem;
+        }
+
+        .falling-note {
+            position: absolute;
+            width: 50px;
+            height: 20px;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 0.8rem;
+            box-shadow: var(--shadow-sm);
+            transition: transform 0.1s linear;
+        }
+
+        .hit-zone {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 50px;
+            background: rgba(78, 205, 196, 0.2);
+            border-top: 3px solid var(--success-color);
+        }
+
+        .score-display {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            background: rgba(0,0,0,0.05);
+            border-radius: 8px;
+        }
+
+        .score-item {
+            text-align: center;
+        }
+
+        .score-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        .score-label {
+            font-size: 0.9rem;
+            color: var(--text-light);
+        }
+
+        /* Recording Panel */
+        .recording-panel {
+            background: rgba(255,255,255,0.95);
+            border-radius: var(--border-radius);
+            padding: 2rem;
+            box-shadow: var(--shadow-lg);
+            backdrop-filter: blur(10px);
+        }
+
+        .recording-controls {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1rem;
+        }
+
+        .recording-status {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            background: rgba(0,0,0,0.05);
+        }
+
+        .recording-status.recording {
+            background: rgba(255, 107, 107, 0.1);
+            color: var(--danger-color);
+        }
+
+        .recording-status.playing {
+            background: rgba(78, 205, 196, 0.1);
+            color: var(--success-color);
+        }
+
+        .pulse {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: currentColor;
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        .recorded-tracks {
+            display: grid;
+            gap: 1rem;
+        }
+
+        .track-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            background: rgba(0,0,0,0.05);
+            border-radius: 8px;
+        }
+
+        .track-info {
+            flex: 1;
+        }
+
+        .track-name {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .track-duration {
+            font-size: 0.9rem;
+            color: var(--text-light);
+        }
+
+        .track-controls {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        /* Loading Animation */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+
+            .controls-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+
+            .piano {
+                min-width: 600px;
+            }
+
+            .white-key {
+                width: 45px;
+                height: 150px;
+            }
+
+            .black-key {
+                width: 30px;
+                height: 90px;
+            }
+
+            .header-content {
+                flex-direction: column;
+                text-align: center;
+            }
+        }
+
+        /* Audio Visualization */
+        .audio-visualizer {
+            width: 100%;
+            height: 60px;
+            background: rgba(0,0,0,0.05);
+            border-radius: 8px;
+            margin: 1rem 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .visualizer-bar {
+            position: absolute;
+            bottom: 0;
+            width: 4px;
+            background: linear-gradient(to top, var(--primary-color), var(--accent-color));
+            border-radius: 2px 2px 0 0;
+            transition: height 0.1s ease;
+        }
+
+        /* Notification */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 1rem 1.5rem;
+            background: var(--success-color);
+            color: white;
+            border-radius: 8px;
+            box-shadow: var(--shadow-lg);
+            z-index: 1000;
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .notification.error {
+            background: var(--danger-color);
+        }
+
+        .notification.warning {
+            background: var(--warning-color);
+            color: var(--text-color);
+        }
+
+        /* Keyboard Help Modal */
+        .help-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.8);
+            z-index: 2000;
+            backdrop-filter: blur(5px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .help-modal.show {
+            display: flex;
+        }
+
+        .help-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            position: relative;
+        }
+
+        .help-content h3 {
+            margin-bottom: 1.5rem;
+            color: var(--primary-color);
+        }
+
+        .key-mapping-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 0.5rem;
+            margin: 1rem 0;
+            font-family: monospace;
+            font-size: 0.9rem;
+        }
+
+        .key-mapping-item {
+            background: var(--gray-color);
+            padding: 0.5rem;
+            border-radius: 6px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .close-help {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text-light);
+        }
+
+        .close-help:hover {
+            color: var(--danger-color);
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <a href="../index.html" class="back-link">
+                <i class="fas fa-arrow-left"></i>
+                返回主页
+            </a>
+            <h1>
+                <span class="header-icon">🎹</span>
+                键盘钢琴
+            </h1>
+            <div></div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <div class="container">
+        <!-- Control Panel -->
+        <section class="control-panel">
+            <div class="controls-grid">
+                <div class="control-group">
+                    <label><i class="fas fa-gamepad"></i> 演奏模式</label>
+                    <select id="playModeSelect">
+                        <option value="free">自由演奏</option>
+                        <option value="game">游戏模式</option>
+                    </select>
+                </div>
+
+                <div class="control-group">
+                    <label><i class="fas fa-keyboard"></i> 按键映射</label>
+                    <select id="keyMappingSelect">
+                        <option value="letters">字母键 (A-L)</option>
+                        <option value="numbers">数字键 (1-0)</option>
+                    </select>
+                </div>
+
+                <div class="control-group">
+                    <label><i class="fas fa-music"></i> 乐器</label>
+                    <select id="instrumentSelect">
+                        <option value="piano">钢琴</option>
+                        <option value="electricPiano">电钢琴</option>
+                        <option value="organ">风琴</option>
+                        <option value="guitar" selected>吉他</option>
+                        <option value="bass">贝斯</option>
+                        <option value="violin">小提琴</option>
+                        <option value="trumpet">小号</option>
+                        <option value="flute">长笛</option>
+                        <option value="saxophone">萨克斯</option>
+                        <option value="synthesizer">合成器</option>
+                    </select>
+                </div>
+
+                <div class="control-group">
+                    <label><i class="fas fa-volume-up"></i> 音量</label>
+                    <div class="range-container">
+                        <input type="range" id="volumeSlider" min="0" max="100" value="70">
+                        <span class="range-value">70%</span>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label><i class="fas fa-clock"></i> 延迟 (ms)</label>
+                    <div class="range-container">
+                        <input type="range" id="reverbSlider" min="0" max="100" value="20">
+                        <span class="range-value">20ms</span>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label><i class="fas fa-broadcast-tower"></i> 八度</label>
+                    <select id="octaveSelect">
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4" selected>4</option>
+                        <option value="5">5</option>
+                        <option value="6">6</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="action-buttons">
+                <div class="file-upload">
+                    <input type="file" id="audioFile" accept=".mp3,.wav,.m4a,.ogg" onchange="handleAudioUpload(event)">
+                    <button class="btn btn-secondary" onclick="document.getElementById('audioFile').click()">
+                        <i class="fas fa-upload"></i>
+                        上传音乐
+                    </button>
+                </div>
+
+                <button class="btn btn-success" onclick="downloadRecording()" id="downloadBtn" disabled>
+                    <i class="fas fa-download"></i>
+                    下载录音
+                </button>
+
+                <button class="btn btn-primary" onclick="showKeyboardHelp()">
+                    <i class="fas fa-question-circle"></i>
+                    按键说明
+                </button>
+
+                <button class="btn btn-secondary" onclick="testPiano()" id="testBtn">
+                    <i class="fas fa-play"></i>
+                    测试钢琴
+                </button>
+            </div>
+        </section>
+
+        <!-- Game Mode Container -->
+        <section class="game-container" id="gameContainer">
+            <h3 style="margin-bottom: 1rem; text-align: center;">
+                <i class="fas fa-gamepad"></i>
+                音乐游戏模式
+            </h3>
+            
+            <div class="score-display">
+                <div class="score-item">
+                    <div class="score-value" id="gameScore">0</div>
+                    <div class="score-label">得分</div>
+                </div>
+                <div class="score-item">
+                    <div class="score-value" id="gameCombo">0</div>
+                    <div class="score-label">连击</div>
+                </div>
+                <div class="score-item">
+                    <div class="score-value" id="gameAccuracy">100%</div>
+                    <div class="score-label">准确率</div>
+                </div>
+                <div class="score-item">
+                    <button class="btn btn-primary" onclick="startGame()" id="startGameBtn">
+                        <i class="fas fa-play"></i>
+                        开始游戏
+                    </button>
+                </div>
+            </div>
+
+            <div class="game-area" id="gameArea">
+                <div class="hit-zone"></div>
+            </div>
+        </section>
+
+        <!-- Piano Container -->
+        <section class="piano-container">
+            <h3 style="margin-bottom: 1rem; text-align: center;">
+                <i class="fas fa-piano"></i>
+                键盘演奏区
+            </h3>
+            
+            <!-- Audio Visualizer -->
+            <div class="audio-visualizer" id="audioVisualizer"></div>
+            
+            <div class="piano-wrapper">
+                <div class="piano" id="piano">
+                    <!-- Piano keys will be generated by JavaScript -->
+                    <div class="loading-message" id="loadingMessage" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; color: var(--text-light);">
+                        正在加载钢琴键盘...
+                    </div>
+                </div>
+            </div>
+            
+            <div style="text-align: center; margin-top: 1rem; color: var(--text-light);" id="keyboardInstructions">
+                <p>使用字母键 A-L 或点击钢琴键演奏 | 支持鼠标/触摸操作</p>
+            </div>
+        </section>
+
+        <!-- Recording Panel -->
+        <section class="recording-panel">
+            <h3 style="margin-bottom: 1.5rem; text-align: center;">
+                <i class="fas fa-microphone"></i>
+                录音与播放
+            </h3>
+            
+            <div class="recording-controls">
+                <button class="btn btn-danger" onclick="toggleRecording()" id="recordBtn">
+                    <i class="fas fa-circle"></i>
+                    开始录音
+                </button>
+                
+                <button class="btn btn-success" onclick="playRecording()" id="playBtn" disabled>
+                    <i class="fas fa-play"></i>
+                    播放录音
+                </button>
+                
+                <button class="btn btn-secondary" onclick="clearRecording()" id="clearBtn" disabled>
+                    <i class="fas fa-trash"></i>
+                    清空录音
+                </button>
+                
+                <div class="recording-status" id="recordingStatus">
+                    <span>准备就绪</span>
+                </div>
+            </div>
+            
+            <div class="recorded-tracks" id="recordedTracks">
+                <!-- Recorded tracks will appear here -->
+            </div>
+        </section>
+    </div>
+
+    <!-- Notification -->
+    <div class="notification" id="notification"></div>
+
+    <!-- Keyboard Help Modal -->
+    <div class="help-modal" id="helpModal">
+        <div class="help-content">
+            <button class="close-help" onclick="closeKeyboardHelp()">&times;</button>
+            <h3><i class="fas fa-keyboard"></i> 按键映射说明</h3>
+            <div id="helpContent">
+                <!-- Help content will be generated by JavaScript -->
+            </div>
+            <button class="btn btn-primary" onclick="closeKeyboardHelp()" style="margin-top: 1rem;">
+                <i class="fas fa-check"></i>
+                知道了
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let audioContext;
+        let instruments = {};
+        let currentInstrument = 'piano';
+        let isRecording = false;
+        let recordedNotes = [];
+        let recordStartTime = 0;
+        let isPlaying = false;
+        let gameMode = false;
+        let gameRunning = false;
+        let fallingNotes = [];
+        let gameScore = 0;
+        let gameCombo = 0;
+        let totalNotes = 0;
+        let hitNotes = 0;
+        let currentOctave = 4;
+        let visualizerBars = [];
+        let audioAnalyser;
+        let currentKeyMapping = 'letters'; // 'letters' or 'numbers'
+
+        // Note mapping
+        const noteMap = {
+            'C': 'C',
+            'C#': 'C#',
+            'D': 'D',
+            'D#': 'D#',
+            'E': 'E',
+            'F': 'F',
+            'F#': 'F#',
+            'G': 'G',
+            'G#': 'G#',
+            'A': 'A',
+            'A#': 'A#',
+            'B': 'B'
+        };
+
+        // Key mapping for keyboard - Letters (A-L)
+        const letterKeyMap = {
+            'a': 'C',
+            'w': 'C#',
+            's': 'D',
+            'e': 'D#',
+            'd': 'E',
+            'f': 'F',
+            't': 'F#',
+            'g': 'G',
+            'y': 'G#',
+            'h': 'A',
+            'u': 'A#',
+            'j': 'B',
+            'k': 'C5',
+            'o': 'C#5',
+            'l': 'D5'
+        };
+
+        // Key mapping for keyboard - Numbers (1-0)
+        const numberKeyMap = {
+            '1': 'C',
+            '!': 'C#',
+            '2': 'D',
+            '@': 'D#',
+            '3': 'E',
+            '4': 'F',
+            '$': 'F#',
+            '5': 'G',
+            '%': 'G#',
+            '6': 'A',
+            '^': 'A#',
+            '7': 'B',
+            '8': 'C5',
+            '*': 'C#5',
+            '9': 'D5',
+            '0': 'E5'
+        };
+
+        // Get current key map
+        function getCurrentKeyMap() {
+            return currentKeyMapping === 'letters' ? letterKeyMap : numberKeyMap;
+        }
+
+        // Initialize audio context and instruments
+        async function initAudio() {
+            try {
+                // Check if Tone.js is available
+                if (typeof Tone === 'undefined' || Tone === null) {
+                    throw new Error('Tone.js not available, using fallback');
+                }
+                
+                // Start Tone.js audio context
+                await Tone.start();
+                console.log('Tone.js started successfully');
+                
+                audioContext = Tone.getContext().rawContext || Tone.getContext();
+                
+                // Create audio analyser for visualization
+                audioAnalyser = new Tone.Analyser('fft', 32);
+                
+                // Initialize instruments with improved configurations
+                instruments = {
+                    piano: new Tone.Synth({
+                        oscillator: { type: "sine" },
+                        envelope: { attack: 0.02, decay: 0.3, sustain: 0.4, release: 1.2 }
+                    }).toDestination(),
+                    
+                    electricPiano: new Tone.FMSynth({
+                        harmonicity: 2,
+                        modulationIndex: 3,
+                        carrier: { oscillator: { type: "sine" } },
+                        modulator: { oscillator: { type: "sine" } },
+                        envelope: { attack: 0.01, decay: 0.2, sustain: 0.4, release: 1.0 }
+                    }).toDestination(),
+                    
+                    organ: new Tone.PolySynth(Tone.Synth, {
+                        oscillator: { type: "square" },
+                        envelope: { attack: 0.02, decay: 0.1, sustain: 0.8, release: 0.5 }
+                    }).toDestination(),
+                    
+                    guitar: new Tone.PluckSynth({
+                        attackNoise: 2,
+                        dampening: 2000,
+                        resonance: 0.8
+                    }).toDestination(),
+                    
+                    bass: new Tone.MonoSynth({
+                        oscillator: { type: "sawtooth" },
+                        envelope: { attack: 0.1, decay: 0.3, sustain: 0.6, release: 0.8 },
+                        filter: { Q: 2, frequency: 400 }
+                    }).toDestination(),
+                    
+                    violin: new Tone.Synth({
+                        oscillator: { type: "sawtooth" },
+                        envelope: { attack: 0.3, decay: 0.1, sustain: 0.9, release: 0.4 }
+                    }).toDestination(),
+                    
+                    trumpet: new Tone.Synth({
+                        oscillator: { type: "square" },
+                        envelope: { attack: 0.1, decay: 0.2, sustain: 0.8, release: 0.4 }
+                    }).toDestination(),
+                    
+                    flute: new Tone.Synth({
+                        oscillator: { type: "sine" },
+                        envelope: { attack: 0.2, decay: 0.1, sustain: 0.7, release: 1.0 }
+                    }).toDestination(),
+                    
+                    saxophone: new Tone.Synth({
+                        oscillator: { type: "triangle" },
+                        envelope: { attack: 0.15, decay: 0.2, sustain: 0.8, release: 0.5 }
+                    }).toDestination(),
+                    
+                    synthesizer: new Tone.PolySynth().toDestination()
+                };
+                
+                // Set master volume
+                Tone.Destination.volume.value = Tone.gainToDb(0.7);
+                
+                console.log('All instruments initialized successfully');
+                console.log('Current instrument:', currentInstrument);
+                console.log('Available instruments:', Object.keys(instruments));
+                
+                showNotification('音频系统初始化完成！', 'success');
+                return true;
+                
+            } catch (error) {
+                console.error('Audio initialization failed:', error);
+                
+                // Create fallback using Web Audio API directly
+                try {
+                    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    console.log('Fallback: Web Audio API initialized');
+                    
+                    // Create simple fallback instruments for all types
+                    const fallbackInstrument = { 
+                        triggerAttackRelease: (note, duration) => {
+                            console.log(`Fallback playing: ${note}`);
+                            playFallbackNote(note);
+                        }
+                    };
+                    
+                    instruments = {
+                        piano: fallbackInstrument,
+                        electricPiano: fallbackInstrument,
+                        organ: fallbackInstrument,
+                        guitar: fallbackInstrument,
+                        bass: fallbackInstrument,
+                        violin: fallbackInstrument,
+                        trumpet: fallbackInstrument,
+                        flute: fallbackInstrument,
+                        saxophone: fallbackInstrument,
+                        synthesizer: fallbackInstrument
+                    };
+                    
+                    showNotification('使用备用音频系统（基础音效）', 'warning');
+                    return true;
+                } catch (fallbackError) {
+                    console.error('Fallback audio failed:', fallbackError);
+                    showNotification('音频系统不可用，但界面功能正常', 'error');
+                    return false;
+                }
+            }
+        }
+
+        // Fallback note player using basic Web Audio API
+        function playFallbackNote(note) {
+            try {
+                if (!audioContext) {
+                    console.warn('No audio context available');
+                    return;
+                }
+
+                // Resume audio context if suspended
+                if (audioContext.state === 'suspended') {
+                    audioContext.resume();
+                }
+
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                const filterNode = audioContext.createBiquadFilter();
+                
+                // Connect the audio nodes
+                oscillator.connect(filterNode);
+                filterNode.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                // Convert note to frequency
+                const noteFreqs = {
+                    'C': 261.63, 'C#': 277.18, 'D': 293.66, 'D#': 311.13,
+                    'E': 329.63, 'F': 349.23, 'F#': 369.99, 'G': 392.00,
+                    'G#': 415.30, 'A': 440.00, 'A#': 466.16, 'B': 493.88
+                };
+                const noteName = note.replace(/[0-9]/g, '');
+                const octave = parseInt(note.replace(/[^0-9]/g, '')) || 4;
+                const baseFreq = noteFreqs[noteName] || 440;
+                const frequency = baseFreq * Math.pow(2, octave - 4);
+                
+                // Configure oscillator based on instrument
+                let waveform = 'sine';
+                let attack = 0.1;
+                let decay = 0.3;
+                let sustain = 0.3;
+                let release = 0.5;
+                
+                switch (currentInstrument) {
+                    case 'piano':
+                        waveform = 'sine';
+                        attack = 0.01;
+                        decay = 0.3;
+                        break;
+                    case 'guitar':
+                        waveform = 'sawtooth';
+                        attack = 0.01;
+                        decay = 0.8;
+                        filterNode.frequency.value = 2000;
+                        filterNode.Q.value = 5;
+                        break;
+                    case 'organ':
+                        waveform = 'square';
+                        attack = 0.1;
+                        decay = 0.1;
+                        sustain = 0.8;
+                        break;
+                    case 'bass':
+                        waveform = 'sawtooth';
+                        attack = 0.1;
+                        decay = 0.4;
+                        filterNode.frequency.value = 800;
+                        break;
+                    case 'violin':
+                        waveform = 'sawtooth';
+                        attack = 0.3;
+                        decay = 0.1;
+                        sustain = 0.9;
+                        break;
+                    case 'trumpet':
+                        waveform = 'square';
+                        attack = 0.1;
+                        decay = 0.2;
+                        sustain = 0.8;
+                        break;
+                    case 'flute':
+                        waveform = 'sine';
+                        attack = 0.2;
+                        decay = 0.1;
+                        sustain = 0.7;
+                        break;
+                    case 'saxophone':
+                        waveform = 'triangle';
+                        attack = 0.15;
+                        decay = 0.2;
+                        sustain = 0.8;
+                        break;
+                    default:
+                        waveform = 'sine';
+                }
+                
+                oscillator.type = waveform;
+                oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
+                
+                // Envelope
+                const now = audioContext.currentTime;
+                const attackTime = now + attack;
+                const decayTime = attackTime + decay;
+                const releaseTime = now + 0.6; // Total note duration
+                
+                gainNode.gain.setValueAtTime(0, now);
+                gainNode.gain.linearRampToValueAtTime(0.3, attackTime);
+                gainNode.gain.exponentialRampToValueAtTime(sustain * 0.3, decayTime);
+                gainNode.gain.setValueAtTime(sustain * 0.3, releaseTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, releaseTime + release);
+                
+                oscillator.start(now);
+                oscillator.stop(releaseTime + release);
+                
+                console.log(`Fallback note played: ${note} (${frequency}Hz) with ${currentInstrument} timbre`);
+            } catch (error) {
+                console.error('Fallback note failed:', error);
+            }
+        }
+
+        // Generate piano keys
+        function generatePiano() {
+            console.log('Generating piano keys...');
+            const piano = document.getElementById('piano');
+            
+            if (!piano) {
+                console.error('Piano container not found!');
+                return;
+            }
+            
+            piano.innerHTML = ''; // Clear existing keys and loading message
+            
+            const notes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+            const whiteKeys = ['C', 'D', 'E', 'F', 'G', 'A', 'B'];
+            
+            let whiteKeyIndex = 0;
+            
+            // First, create all white keys
+            for (let octave = 3; octave <= 5; octave++) {
+                for (let note of whiteKeys) {
+                    const key = document.createElement('div');
+                    const fullNote = note + octave;
+                    
+                    key.className = 'key white-key';
+                    key.dataset.note = fullNote;
+                    key.style.left = whiteKeyIndex * 62 + 'px';
+                    
+                    // Add keyboard mapping label
+                    const keyLabel = document.createElement('div');
+                    keyLabel.className = 'key-label';
+                    
+                    const currentKeyMap = getCurrentKeyMap();
+                    const keyboardKey = Object.keys(currentKeyMap).find(k => {
+                        const mappedNote = currentKeyMap[k];
+                        return mappedNote === note || mappedNote === note + (octave === 5 ? '5' : '');
+                    });
+                    
+                    if (keyboardKey) {
+                        if (currentKeyMapping === 'numbers') {
+                            keyLabel.textContent = keyboardKey;
+                        } else {
+                            keyLabel.textContent = keyboardKey.toUpperCase();
+                        }
+                    }
+                    
+                    key.appendChild(keyLabel);
+                    
+                    // Add event listeners
+                    key.addEventListener('mousedown', (e) => {
+                        e.preventDefault();
+                        playNote(fullNote);
+                    });
+                    
+                    key.addEventListener('touchstart', (e) => {
+                        e.preventDefault();
+                        playNote(fullNote);
+                    });
+                    
+                    key.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        playNote(fullNote);
+                    });
+                    
+                    piano.appendChild(key);
+                    whiteKeyIndex++;
+                }
+            }
+            
+            // Then, create black keys with correct positioning
+            const blackKeyPattern = [1, 3, 6, 8, 10]; // Positions of black keys within each octave
+            let blackKeyOctaveOffset = 0;
+            
+            for (let octave = 3; octave <= 5; octave++) {
+                for (let i = 0; i < blackKeyPattern.length; i++) {
+                    const noteIndex = blackKeyPattern[i];
+                    const note = notes[noteIndex];
+                    const fullNote = note + octave;
+                    
+                    const key = document.createElement('div');
+                    key.className = 'key black-key';
+                    key.dataset.note = fullNote;
+                    
+                    // Calculate position relative to white keys
+                    let position;
+                    switch (i) {
+                        case 0: // C#
+                            position = blackKeyOctaveOffset * 7 * 62 + 44; // Between C and D
+                            break;
+                        case 1: // D#
+                            position = blackKeyOctaveOffset * 7 * 62 + 106; // Between D and E
+                            break;
+                        case 2: // F#
+                            position = blackKeyOctaveOffset * 7 * 62 + 230; // Between F and G
+                            break;
+                        case 3: // G#
+                            position = blackKeyOctaveOffset * 7 * 62 + 292; // Between G and A
+                            break;
+                        case 4: // A#
+                            position = blackKeyOctaveOffset * 7 * 62 + 354; // Between A and B
+                            break;
+                    }
+                    
+                    key.style.left = position + 'px';
+                    
+                    // Add keyboard mapping label
+                    const keyLabel = document.createElement('div');
+                    keyLabel.className = 'key-label';
+                    
+                    const currentKeyMap = getCurrentKeyMap();
+                    const keyboardKey = Object.keys(currentKeyMap).find(k => {
+                        const mappedNote = currentKeyMap[k];
+                        return mappedNote === note || mappedNote === note + (octave === 5 ? '5' : '');
+                    });
+                    
+                    if (keyboardKey) {
+                        keyLabel.textContent = currentKeyMapping === 'numbers' ? keyboardKey : keyboardKey.toUpperCase();
+                    }
+                    
+                    key.appendChild(keyLabel);
+                    
+                    // Add event listeners
+                    key.addEventListener('mousedown', (e) => {
+                        e.preventDefault();
+                        playNote(fullNote);
+                    });
+                    
+                    key.addEventListener('touchstart', (e) => {
+                        e.preventDefault();
+                        playNote(fullNote);
+                    });
+                    
+                    key.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        playNote(fullNote);
+                    });
+                    
+                    piano.appendChild(key);
+                }
+                blackKeyOctaveOffset++;
+            }
+            
+            console.log(`Generated ${piano.children.length} piano keys`);
+            
+            // Remove loading message if it exists
+            const loadingMessage = document.getElementById('loadingMessage');
+            if (loadingMessage) {
+                loadingMessage.remove();
+            }
+            
+            // Ensure piano keys are visible
+            if (piano.children.length > 0) {
+                piano.style.visibility = 'visible';
+                piano.style.opacity = '1';
+                console.log('Piano keys are now visible');
+            } else {
+                console.error('No piano keys were generated!');
+            }
+        }
+
+        // Initialize audio visualizer
+        function initVisualizer() {
+            const visualizer = document.getElementById('audioVisualizer');
+            const barCount = 32;
+            
+            for (let i = 0; i < barCount; i++) {
+                const bar = document.createElement('div');
+                bar.className = 'visualizer-bar';
+                bar.style.left = (i * (100 / barCount)) + '%';
+                visualizer.appendChild(bar);
+                visualizerBars.push(bar);
+            }
+            
+            // Start visualization loop
+            function updateVisualizer() {
+                if (audioAnalyser) {
+                    const frequencyData = audioAnalyser.getValue();
+                    
+                    visualizerBars.forEach((bar, index) => {
+                        const value = frequencyData[index];
+                        const height = Math.max(0, (value + 140) / 140 * 100); // Convert dB to percentage
+                        bar.style.height = height + '%';
+                    });
+                }
+                requestAnimationFrame(updateVisualizer);
+            }
+            updateVisualizer();
+        }
+
+        // Play note
+        async function playNote(note) {
+            console.log('Playing note:', note);
+            
+            // Ensure audio is initialized on first interaction
+            await ensureAudioInitialized();
+            
+            if (!instruments[currentInstrument]) {
+                console.warn('Instrument not loaded:', currentInstrument);
+                // Use fallback
+                playFallbackNote(note);
+                return;
+            }
+            
+            try {
+                const instrument = instruments[currentInstrument];
+                
+                // Highlight key
+                const keyElement = document.querySelector(`[data-note="${note}"]`);
+                if (keyElement) {
+                    keyElement.classList.add('active');
+                    setTimeout(() => keyElement.classList.remove('active'), 150);
+                }
+                
+                // Play sound - ensure audio context is running
+                if (audioContext && audioContext.state === 'suspended') {
+                    console.log('Resuming audio context...');
+                    await audioContext.resume();
+                }
+                
+                if (typeof Tone !== 'undefined' && Tone) {
+                    // Ensure Tone.js context is started
+                    if (Tone.context.state !== 'running') {
+                        await Tone.start();
+                        console.log('Tone.js context started');
+                    }
+                }
+                
+                // Play the note
+                if (instrument.triggerAttackRelease) {
+                    console.log(`Playing ${note} with ${currentInstrument}`);
+                    instrument.triggerAttackRelease(note, '0.5');
+                } else if (instrument.triggerAttack && instrument.triggerRelease) {
+                    console.log(`Playing ${note} with ${currentInstrument} (manual release)`);
+                    instrument.triggerAttack(note);
+                    setTimeout(() => {
+                        try {
+                            instrument.triggerRelease();
+                        } catch (e) {
+                            console.warn('Error releasing note:', e);
+                        }
+                    }, 500);
+                } else {
+                    console.warn('Instrument does not support note triggering:', currentInstrument);
+                    playFallbackNote(note);
+                }
+                
+                // Record if recording
+                if (isRecording) {
+                    recordedNotes.push({
+                        note: note,
+                        time: Date.now() - recordStartTime,
+                        duration: 500
+                    });
+                }
+                
+                // Game mode hit detection
+                if (gameMode && gameRunning) {
+                    checkGameHit(note);
+                }
+                
+            } catch (error) {
+                console.error('Error playing note:', error);
+                showNotification('播放音符时出错：' + error.message, 'error');
+                // Fallback to basic sound
+                playFallbackNote(note);
+            }
+        }
+
+        // Keyboard event listeners
+        document.addEventListener('keydown', async (e) => {
+            const key = e.key.toLowerCase();
+            const currentKeyMap = getCurrentKeyMap();
+            
+            if (currentKeyMap[key] || currentKeyMap[e.key]) {
+                // Use the exact key for numbers (to handle shift+number for symbols)
+                const mappedKey = currentKeyMap[key] || currentKeyMap[e.key];
+                const note = mappedKey;
+                const fullNote = note.includes('5') ? note : note + currentOctave;
+                
+                console.log(`Key pressed: ${e.key} -> Note: ${fullNote}`);
+                await playNote(fullNote);
+                e.preventDefault(); // Prevent default behavior
+            }
+        });
+
+        // Control event listeners
+        function initControlListeners() {
+            document.getElementById('playModeSelect').addEventListener('change', (e) => {
+                const mode = e.target.value;
+                const gameContainer = document.getElementById('gameContainer');
+                
+                if (mode === 'game') {
+                    gameMode = true;
+                    gameContainer.classList.add('active');
+                    resetGame();
+                    showNotification('已切换到游戏模式', 'success');
+                } else {
+                    gameMode = false;
+                    gameContainer.classList.remove('active');
+                    stopGame();
+                    showNotification('已切换到自由演奏模式', 'success');
+                }
+            });
+
+            document.getElementById('keyMappingSelect').addEventListener('change', (e) => {
+                currentKeyMapping = e.target.value;
+                generatePiano(); // Regenerate piano with new key labels
+                updateKeyboardHelp();
+                showNotification(`已切换到${currentKeyMapping === 'letters' ? '字母键' : '数字键'}映射`, 'success');
+            });
+
+            document.getElementById('instrumentSelect').addEventListener('change', async (e) => {
+                currentInstrument = e.target.value;
+                console.log('Instrument changed to:', currentInstrument);
+                
+                // Test the new instrument
+                try {
+                    await ensureAudioInitialized();
+                    showNotification(`已切换到${e.target.options[e.target.selectedIndex].text}`, 'success');
+                } catch (error) {
+                    console.error('Error switching instrument:', error);
+                }
+            });
+
+            document.getElementById('volumeSlider').addEventListener('input', (e) => {
+                const volume = e.target.value / 100;
+                e.target.nextElementSibling.textContent = e.target.value + '%';
+                
+                // Update Tone.js master volume if available
+                if (typeof Tone !== 'undefined' && Tone && Tone.Destination) {
+                    try {
+                        Tone.Destination.volume.value = Tone.gainToDb(volume);
+                        console.log('Volume set to:', volume);
+                    } catch (error) {
+                        console.warn('Failed to set Tone.js volume:', error);
+                    }
+                }
+            });
+
+            document.getElementById('reverbSlider').addEventListener('input', (e) => {
+                e.target.nextElementSibling.textContent = e.target.value + 'ms';
+            });
+
+            document.getElementById('octaveSelect').addEventListener('change', (e) => {
+                currentOctave = parseInt(e.target.value);
+                console.log('Octave changed to:', currentOctave);
+            });
+        }
+
+        // Recording functions
+        function toggleRecording() {
+            if (!isRecording) {
+                startRecording();
+            } else {
+                stopRecording();
+            }
+        }
+
+        function startRecording() {
+            isRecording = true;
+            recordedNotes = [];
+            recordStartTime = Date.now();
+            
+            const recordBtn = document.getElementById('recordBtn');
+            const status = document.getElementById('recordingStatus');
+            
+            recordBtn.innerHTML = '<i class="fas fa-stop"></i> 停止录音';
+            recordBtn.className = 'btn btn-secondary';
+            
+            status.innerHTML = '<div class="pulse"></div><span>录音中...</span>';
+            status.className = 'recording-status recording';
+            
+            showNotification('开始录音...', 'success');
+        }
+
+        function stopRecording() {
+            isRecording = false;
+            
+            const recordBtn = document.getElementById('recordBtn');
+            const status = document.getElementById('recordingStatus');
+            const playBtn = document.getElementById('playBtn');
+            const clearBtn = document.getElementById('clearBtn');
+            const downloadBtn = document.getElementById('downloadBtn');
+            
+            recordBtn.innerHTML = '<i class="fas fa-circle"></i> 开始录音';
+            recordBtn.className = 'btn btn-danger';
+            
+            status.innerHTML = '<span>录音完成</span>';
+            status.className = 'recording-status';
+            
+            if (recordedNotes.length > 0) {
+                playBtn.disabled = false;
+                clearBtn.disabled = false;
+                downloadBtn.disabled = false;
+                showNotification(`录音完成，共录制 ${recordedNotes.length} 个音符`, 'success');
+            } else {
+                showNotification('录音为空', 'warning');
+            }
+        }
+
+        function playRecording() {
+            if (recordedNotes.length === 0 || isPlaying) return;
+            
+            isPlaying = true;
+            const playBtn = document.getElementById('playBtn');
+            const status = document.getElementById('recordingStatus');
+            
+            playBtn.innerHTML = '<i class="fas fa-stop"></i> 停止播放';
+            playBtn.className = 'btn btn-secondary';
+            
+            status.innerHTML = '<div class="pulse"></div><span>播放中...</span>';
+            status.className = 'recording-status playing';
+            
+            let noteIndex = 0;
+            const startTime = Date.now();
+            
+            function playNextNote() {
+                if (!isPlaying || noteIndex >= recordedNotes.length) {
+                    stopPlayback();
+                    return;
+                }
+                
+                const note = recordedNotes[noteIndex];
+                const currentTime = Date.now() - startTime;
+                
+                if (currentTime >= note.time) {
+                    playNote(note.note);
+                    noteIndex++;
+                }
+                
+                requestAnimationFrame(playNextNote);
+            }
+            
+            playNextNote();
+        }
+
+        function stopPlayback() {
+            isPlaying = false;
+            
+            const playBtn = document.getElementById('playBtn');
+            const status = document.getElementById('recordingStatus');
+            
+            playBtn.innerHTML = '<i class="fas fa-play"></i> 播放录音';
+            playBtn.className = 'btn btn-success';
+            
+            status.innerHTML = '<span>准备就绪</span>';
+            status.className = 'recording-status';
+        }
+
+        function clearRecording() {
+            if (confirm('确定要清空录音吗？')) {
+                recordedNotes = [];
+                
+                const playBtn = document.getElementById('playBtn');
+                const clearBtn = document.getElementById('clearBtn');
+                const downloadBtn = document.getElementById('downloadBtn');
+                
+                playBtn.disabled = true;
+                clearBtn.disabled = true;
+                downloadBtn.disabled = true;
+                
+                showNotification('录音已清空', 'success');
+            }
+        }
+
+        function downloadRecording() {
+            if (recordedNotes.length === 0) return;
+            
+            const data = {
+                notes: recordedNotes,
+                instrument: currentInstrument,
+                timestamp: new Date().toISOString()
+            };
+            
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `piano-recording-${Date.now()}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+            
+            showNotification('录音文件已下载', 'success');
+        }
+
+        // Update keyboard instructions
+        function updateKeyboardHelp() {
+            const instructions = document.getElementById('keyboardInstructions');
+            const keyType = currentKeyMapping === 'letters' ? '字母键 A-L' : '数字键 1-0';
+            instructions.innerHTML = `<p>使用${keyType}或点击钢琴键演奏 | 支持鼠标/触摸操作</p>`;
+        }
+
+        // Show keyboard help
+        function showKeyboardHelp() {
+            const helpModal = document.getElementById('helpModal');
+            const helpContent = document.getElementById('helpContent');
+            const currentKeyMap = getCurrentKeyMap();
+            
+            let content = `<p><strong>当前按键映射：${currentKeyMapping === 'letters' ? '字母键模式' : '数字键模式'}</strong></p>`;
+            
+            content += '<div class="key-mapping-grid">';
+            
+            if (currentKeyMapping === 'letters') {
+                const letterMappings = [
+                    ['A', 'C'], ['W', 'C#'], ['S', 'D'], ['E', 'D#'], ['D', 'E'],
+                    ['F', 'F'], ['T', 'F#'], ['G', 'G'], ['Y', 'G#'], ['H', 'A'],
+                    ['U', 'A#'], ['J', 'B'], ['K', 'C↑'], ['O', 'C#↑'], ['L', 'D↑']
+                ];
+                letterMappings.forEach(([key, note]) => {
+                    content += `<div class="key-mapping-item"><span>${key}</span><span>${note}</span></div>`;
+                });
+            } else {
+                const numberMappings = [
+                    ['1', 'C'], ['!', 'C#'], ['2', 'D'], ['@', 'D#'], ['3', 'E'],
+                    ['4', 'F'], ['$', 'F#'], ['5', 'G'], ['%', 'G#'], ['6', 'A'],
+                    ['^', 'A#'], ['7', 'B'], ['8', 'C↑'], ['*', 'C#↑'], ['9', 'D↑'], ['0', 'E↑']
+                ];
+                numberMappings.forEach(([key, note]) => {
+                    content += `<div class="key-mapping-item"><span>${key}</span><span>${note}</span></div>`;
+                });
+                content += '</div><p style="margin-top: 1rem; font-size: 0.9rem; color: var(--text-light);">提示：按住 Shift 键 + 数字键可以演奏升半音（黑键）</p>';
+            }
+            
+            if (currentKeyMapping === 'letters') {
+                content += '</div><p style="margin-top: 1rem; font-size: 0.9rem; color: var(--text-light);">↑ 表示高一个八度的音符</p>';
+            }
+            
+            helpContent.innerHTML = content;
+            helpModal.classList.add('show');
+        }
+
+        // Close keyboard help
+        function closeKeyboardHelp() {
+            const helpModal = document.getElementById('helpModal');
+            helpModal.classList.remove('show');
+        }
+
+        // Close help modal when clicking outside
+        document.addEventListener('click', (e) => {
+            const helpModal = document.getElementById('helpModal');
+            if (e.target === helpModal) {
+                closeKeyboardHelp();
+            }
+        });
+
+        // Game mode functions
+        function resetGame() {
+            gameScore = 0;
+            gameCombo = 0;
+            totalNotes = 0;
+            hitNotes = 0;
+            fallingNotes = [];
+            updateGameDisplay();
+        }
+
+        function startGame() {
+            if (gameRunning) {
+                stopGame();
+                return;
+            }
+            
+            gameRunning = true;
+            const startBtn = document.getElementById('startGameBtn');
+            startBtn.innerHTML = '<i class="fas fa-stop"></i> 停止游戏';
+            startBtn.className = 'btn btn-danger';
+            
+            resetGame();
+            generateRandomNotes();
+            
+            showNotification('游戏开始！', 'success');
+        }
+
+        function stopGame() {
+            gameRunning = false;
+            const startBtn = document.getElementById('startGameBtn');
+            startBtn.innerHTML = '<i class="fas fa-play"></i> 开始游戏';
+            startBtn.className = 'btn btn-primary';
+            
+            // Clear falling notes
+            const gameArea = document.getElementById('gameArea');
+            const notes = gameArea.querySelectorAll('.falling-note');
+            notes.forEach(note => note.remove());
+            
+            if (totalNotes > 0) {
+                const finalAccuracy = Math.round((hitNotes / totalNotes) * 100);
+                showNotification(`游戏结束！得分: ${gameScore}, 准确率: ${finalAccuracy}%`, 'success');
+            }
+        }
+
+        function generateRandomNotes() {
+            if (!gameRunning) return;
+            
+            const notes = ['C4', 'D4', 'E4', 'F4', 'G4', 'A4', 'B4'];
+            const randomNote = notes[Math.floor(Math.random() * notes.length)];
+            
+            createFallingNote(randomNote);
+            
+            // Schedule next note
+            const delay = Math.random() * 1000 + 500; // 0.5-1.5 seconds
+            setTimeout(generateRandomNotes, delay);
+        }
+
+        function createFallingNote(note) {
+            const gameArea = document.getElementById('gameArea');
+            const noteElement = document.createElement('div');
+            noteElement.className = 'falling-note';
+            noteElement.textContent = note;
+            noteElement.dataset.note = note;
+            
+            // Random horizontal position
+            const left = Math.random() * (gameArea.offsetWidth - 50);
+            noteElement.style.left = left + 'px';
+            noteElement.style.top = '0px';
+            
+            gameArea.appendChild(noteElement);
+            fallingNotes.push({
+                element: noteElement,
+                note: note,
+                startTime: Date.now()
+            });
+            
+            totalNotes++;
+            
+            // Animate falling
+            const fallDuration = 3000; // 3 seconds to fall
+            const fallDistance = gameArea.offsetHeight - 70; // Leave space for hit zone
+            
+            let startTime = Date.now();
+            
+            function animateFall() {
+                const elapsed = Date.now() - startTime;
+                const progress = elapsed / fallDuration;
+                
+                if (progress >= 1) {
+                    // Note missed
+                    noteElement.remove();
+                    const index = fallingNotes.findIndex(n => n.element === noteElement);
+                    if (index > -1) fallingNotes.splice(index, 1);
+                    
+                    gameCombo = 0; // Reset combo on miss
+                    updateGameDisplay();
+                    return;
+                }
+                
+                const currentTop = progress * fallDistance;
+                noteElement.style.top = currentTop + 'px';
+                
+                requestAnimationFrame(animateFall);
+            }
+            
+            animateFall();
+        }
+
+        function checkGameHit(playedNote) {
+            const hitZoneStart = document.getElementById('gameArea').offsetHeight - 100;
+            const hitZoneEnd = document.getElementById('gameArea').offsetHeight - 50;
+            
+            for (let i = fallingNotes.length - 1; i >= 0; i--) {
+                const fallingNote = fallingNotes[i];
+                
+                if (fallingNote.note === playedNote) {
+                    const noteTop = parseInt(fallingNote.element.style.top);
+                    
+                    if (noteTop >= hitZoneStart && noteTop <= hitZoneEnd) {
+                        // Hit!
+                        hitNotes++;
+                        gameCombo++;
+                        gameScore += 100 + (gameCombo * 10);
+                        
+                        // Remove note
+                        fallingNote.element.remove();
+                        fallingNotes.splice(i, 1);
+                        
+                        updateGameDisplay();
+                        break;
+                    }
+                }
+            }
+        }
+
+        function updateGameDisplay() {
+            document.getElementById('gameScore').textContent = gameScore;
+            document.getElementById('gameCombo').textContent = gameCombo;
+            
+            const accuracy = totalNotes > 0 ? Math.round((hitNotes / totalNotes) * 100) : 100;
+            document.getElementById('gameAccuracy').textContent = accuracy + '%';
+        }
+
+        // Audio upload and analysis
+        async function handleAudioUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            showNotification('正在分析音频文件...', 'warning');
+            
+            try {
+                const arrayBuffer = await file.arrayBuffer();
+                const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+                
+                // Simple melody extraction (this is a very basic implementation)
+                const notes = extractMelodyFromAudio(audioBuffer);
+                
+                if (notes.length > 0) {
+                    recordedNotes = notes;
+                    document.getElementById('playBtn').disabled = false;
+                    document.getElementById('clearBtn').disabled = false;
+                    document.getElementById('downloadBtn').disabled = false;
+                    
+                    showNotification(`成功提取 ${notes.length} 个音符！`, 'success');
+                } else {
+                    showNotification('未能从音频中提取到旋律', 'error');
+                }
+                
+            } catch (error) {
+                console.error('Audio analysis error:', error);
+                showNotification('音频分析失败', 'error');
+            }
+        }
+
+        function extractMelodyFromAudio(audioBuffer) {
+            // This is a very simplified melody extraction
+            // In reality, you'd need sophisticated pitch detection algorithms
+            const sampleRate = audioBuffer.sampleRate;
+            const channelData = audioBuffer.getChannelData(0);
+            const notes = [];
+            
+            // Simple peak detection to simulate melody extraction
+            const windowSize = Math.floor(sampleRate * 0.1); // 100ms windows
+            const threshold = 0.1;
+            
+            for (let i = 0; i < channelData.length - windowSize; i += windowSize) {
+                let maxAmplitude = 0;
+                
+                for (let j = i; j < i + windowSize; j++) {
+                    maxAmplitude = Math.max(maxAmplitude, Math.abs(channelData[j]));
+                }
+                
+                if (maxAmplitude > threshold) {
+                    // Generate a random note (in a real implementation, you'd detect the actual pitch)
+                    const noteNames = ['C4', 'D4', 'E4', 'F4', 'G4', 'A4', 'B4'];
+                    const randomNote = noteNames[Math.floor(Math.random() * noteNames.length)];
+                    
+                    notes.push({
+                        note: randomNote,
+                        time: (i / sampleRate) * 1000, // Convert to milliseconds
+                        duration: 200
+                    });
+                }
+            }
+            
+            return notes;
+        }
+
+        // Test piano function
+        async function testPiano() {
+            console.log('=== Testing Piano System ===');
+            
+            // Test piano key generation
+            const piano = document.getElementById('piano');
+            console.log('Piano element:', piano);
+            console.log('Piano children count:', piano ? piano.children.length : 'Piano not found');
+            
+            if (piano && piano.children.length === 0) {
+                console.log('No piano keys found, regenerating...');
+                generatePiano();
+            }
+            
+            // Test audio system
+            try {
+                console.log('Testing audio initialization...');
+                const audioWorking = await ensureAudioInitialized();
+                
+                if (audioWorking) {
+                    console.log('Audio system working, current instrument:', currentInstrument);
+                    console.log('Available instruments:', Object.keys(instruments));
+                    console.log('Instrument object:', instruments[currentInstrument]);
+                    
+                    // Play a test note
+                    console.log('Playing test note C4...');
+                    await playNote('C4');
+                    
+                    // Wait a moment then play another note
+                    setTimeout(async () => {
+                        console.log('Playing test note G4...');
+                        await playNote('G4');
+                        
+                        showNotification(`测试成功！当前乐器：${currentInstrument}。您应该听到了两个音符。`, 'success');
+                    }, 600);
+                    
+                } else {
+                    showNotification('音频系统初始化失败，但界面功能正常', 'warning');
+                }
+                
+            } catch (error) {
+                console.error('Test failed:', error);
+                showNotification('测试失败：' + error.message, 'error');
+            }
+            
+            // Additional diagnostics
+            console.log('=== Audio Diagnostics ===');
+            console.log('AudioContext state:', audioContext ? audioContext.state : 'No AudioContext');
+            console.log('Tone.js available:', typeof Tone !== 'undefined');
+            console.log('Tone.js state:', typeof Tone !== 'undefined' && Tone.context ? Tone.context.state : 'N/A');
+            console.log('Current volume:', document.getElementById('volumeSlider').value + '%');
+            console.log('Current octave:', currentOctave);
+            console.log('Current key mapping:', currentKeyMapping);
+        }
+
+        // Initialize everything when page loads
+        window.addEventListener('load', async () => {
+            try {
+                console.log('Page loaded, initializing...');
+                
+                // Wait a moment for DOM to be fully ready
+                setTimeout(() => {
+                    try {
+                        // Generate piano first (doesn't need audio)
+                        generatePiano();
+                        console.log('Piano keys generated');
+                        
+                        // Initialize visualizer
+                        initVisualizer();
+                        console.log('Visualizer initialized');
+                        
+                        // Initialize control event listeners
+                        initControlListeners();
+                        console.log('Control listeners initialized');
+                        
+                        // Update keyboard help
+                        updateKeyboardHelp();
+                        console.log('Keyboard help updated');
+                        
+                        // Show ready notification
+                        showNotification('键盘钢琴界面加载完成！点击"测试钢琴"按钮或任意琴键开始演奏', 'success');
+                        
+                    } catch (innerError) {
+                        console.error('Inner initialization error:', innerError);
+                        showNotification('初始化失败：' + innerError.message, 'error');
+                    }
+                }, 100);
+                
+            } catch (error) {
+                console.error('Initialization error:', error);
+                showNotification('初始化失败：' + error.message, 'error');
+            }
+        });
+
+        // Also try initializing when DOM is ready
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('DOM Content Loaded');
+            
+            // Backup initialization in case window.load doesn't fire
+            setTimeout(() => {
+                const piano = document.getElementById('piano');
+                if (piano && piano.children.length === 0) {
+                    console.log('Backup initialization triggered');
+                    generatePiano();
+                    showNotification('钢琴键盘已加载（备用模式）', 'warning');
+                }
+            }, 2000);
+        });
+
+        // Initialize audio on first user interaction
+        let audioInitialized = false;
+        async function ensureAudioInitialized() {
+            if (!audioInitialized) {
+                console.log('First interaction - initializing audio...');
+                audioInitialized = await initAudio();
+                if (audioInitialized) {
+                    showNotification('音频系统已激活！', 'success');
+                } else {
+                    showNotification('音频初始化失败，但界面仍可使用', 'warning');
+                }
+            }
+            return audioInitialized;
+        }
+
+        // Handle visibility change to pause audio
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                if (isPlaying) stopPlayback();
+                if (gameRunning) stopGame();
+            }
+        });
+    </script>
+</body>
+</html>
